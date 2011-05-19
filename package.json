@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/ded/morpheus.git"
   },
-  "keywords": ["ender", "animation", "motion", "css", "colors"],
+  "keywords": ["ender", "animation", "motion", "css", "colors", "morph", "tween"],
   "main": "./morpheus.js",
   "ender": "./src/ender.js"
 }

@@ -19,3 +19,36 @@ morpheus(elements, {
 	}
 })
 ```
+
+Tweening
+------
+
+<h3>integers</h3>
+
+``` js
+morpheus.tween(1000,
+	function (position) {
+		// do stuff with position
+	},
+	function () {
+		console.log('done');
+	},
+	easings.bounce,
+	100, // start
+	300 // end
+)
+```
+
+<h3>colors</h3>
+
+``` js
+morpheus.color(1000,
+	function (color) {
+		// do stuff with position
+	},
+	null,
+	null,
+	'#ff0', // start
+	'#cc33ee' // end
+)
+```

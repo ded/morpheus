@@ -1,4 +1,4 @@
-!function (context, doc) {
+!function (context, doc, win) {
 
   var ie = /msie/i.test(navigator.userAgent),
       hex = "0123456789abcdef",
@@ -58,7 +58,17 @@
         return s.replace(/-(.)/g, function (m, m1) {
           return m1.toUpperCase();
         });
-      };
+      },
+      frame = function () {
+        return win.requestAnimationFrame  ||
+          win.webkitRequestAnimationFrame ||
+          win.mozRequestAnimationFrame    ||
+          win.oRequestAnimationFrame      ||
+          win.msRequestAnimationFrame     ||
+          function (callback) {
+            win.setTimeout(callback, 10);
+          };
+      }();
 
   function tween(duration, fn, done, ease, from, to) {
     ease = ease || function (t) {
@@ -68,7 +78,7 @@
     time = duration || 1000,
     diff = to - from,
     start = new Date(),
-    timer = setTimeout(run, 5);
+    timer = frame(run);
 
     function run() {
       var delta = new Date() - start;
@@ -81,7 +91,7 @@
       to ?
         fn((diff * ease(delta / time)) + from) :
         fn(ease(delta / time));
-      setTimeout(run, 5);
+      frame(run, 5);
     }
   }
 
@@ -151,4 +161,4 @@
     (module.exports = morpheus);
   context['morpheus'] = morpheus;
 
-}(this, document);
+}(this, document, window);

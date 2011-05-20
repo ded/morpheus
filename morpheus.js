@@ -5,35 +5,36 @@
   */
 !function (context, doc) {
 
-  var ie = /msie/i.test(navigator.userAgent),
-      hex = "0123456789abcdef",
-      px = 'px',
+  var hex = "0123456789abcdef",
+      px = "px",
       html = doc.documentElement,
+      defaultView = doc.defaultView,
+
+      // Based on work by Juriy Zaytsev.
+      SUPPORTS_GCS = defaultView && 'getComputedStyle' in defaultView,
+      SUPPORTS_CS = !SUPPORTS_GCS && 'currentStyle' in html,
+      SUPPORTS_FILTERS = !('opacity' in html.style) && 'filter' in html.style,
+      opacityFilter = /alpha\s*\(\s*opacity\s*=\s*([^\)]+)\)/,
       unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1 },
-      getStyle = doc.defaultView && doc.defaultView.getComputedStyle ?
+
+      getStyle = SUPPORTS_GCS ?
         function (el, property) {
-          var value = null;
-          var computed = doc.defaultView.getComputedStyle(el, '');
+          var value = null, computed = defaultView.getComputedStyle(el, null);
           computed && (value = computed[camelize(property)]);
           return el.style[property] || value;
-        } : (ie && html.currentStyle) ?
+        } : SUPPORTS_CS ?
 
         function (el, property) {
+          var value, style = el.style, currentStyle = el.currentStyle, result;
           property = camelize(property);
-
           if (property == 'opacity') {
-            var val = 100;
-            try {
-              val = el.filters['DXImageTransform.Microsoft.Alpha'].opacity;
-            } catch (e1) {
-              try {
-                val = el.filters('alpha').opacity;
-              } catch (e2) {}
+            result = '1';
+            if (SUPPORTS_FILTERS && (value = (style.filter || currentStyle.filter).match(opacityFilter))) {
+              result = String(value[1] / 100);
             }
-            return val / 100;
+            return result;
           }
-          var value = el.currentStyle ? el.currentStyle[property] : null;
-          return el.style[property] || value;
+          return el.style[property] || (el.currentStyle ? el.currentStyle[property] : null);
         } :
 
         function (el, property) {
@@ -141,12 +142,26 @@
 
     // one tween to rule them all
     tween(duration, function (pos, v) {
+      var style, k, el;
       for (i = els.length; i--;) {
-        for (var k in options) {
+        for (k in options) {
           v = getVal(pos, options, begin, end, k, i);
-          ie && k == 'opacity' ?
-            (els[i].filter = 'alpha(opacity=' + (v * 100) + ')') :
-            (els[i].style[camelize(k)] = v);
+          el = els[i];
+          // Based on work by Juriy Zaytsev.
+          if (k == 'opacity' && SUPPORTS_FILTERS) {
+            style = el.style;
+            if (SUPPORTS_CS && !el.currentStyle.hasLayout) {
+              style.zoom = 1;
+            }
+            v = v >= 0.9999 ? '' : ('alpha(opacity=' + (v * 100) + ')');
+            if (opacityFilter.test(style.filter)) {
+              style.filter = style.filter.replace(opacityFilter, v);
+            } else {
+              style.filter += v;
+            }
+          } else {
+            el.style[camelize(k)] = v;
+          }
         }
       }
     }, complete, ease);

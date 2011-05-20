@@ -4,17 +4,19 @@
       morpheus(this, options);
       return this;
     },
-    fadeIn: function (d) {
+    fadeIn: function (d, fn) {
       morpheus(this, {
         duration: d,
-        opacity: 1
+        opacity: 1,
+        complete: fn
       });
       return this;
     },
-    fadeOut: function (d) {
+    fadeOut: function (d, fn) {
       morpheus(this, {
         duration: d,
-        opacity: 0
+        opacity: 0,
+        complete: fn
       });
       return this;
     }

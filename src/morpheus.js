@@ -35,8 +35,10 @@
         },
       RGBtoHex = function () {
         function hx(n) {
-          n = parseInt(n);
-          if (n == 0 || isNaN(n)) return '00';
+          n = parseInt(n, 10);
+          if (n === 0 || isNaN(n)) {
+            return '00';
+          }
           n = Math.max(0, n);
           n = Math.min(n, 255);
           n = Math.round(n);
@@ -47,10 +49,10 @@
         };
       }(),
       toHex = function (c) {
-    		var m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c);
-    		return (m ? '#' + RGBtoHex(m[1], m[2], m[3]) : c)
-    		.replace(/#(\w)(\w)(\w)$/, '#$1$1$2$2$3$3'); // short to long
-    	},
+        var m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c);
+        return (m ? '#' + RGBtoHex(m[1], m[2], m[3]) : c)
+        .replace(/#(\w)(\w)(\w)$/, '#$1$1$2$2$3$3'); // short to long
+      },
       camelize = function (s) {
         return s.replace(/-(.)/g, function (m, m1) {
           return m1.toUpperCase();
@@ -58,38 +60,38 @@
       };
 
   function tween(duration, fn, done, ease, from, to) {
-		ease = ease || function (t) {
-		  return Math.sin(t * Math.PI / 2)
-		};
-	  var self = this,
-	  time = duration || 1000,
-	  diff = to - from,
-	  start = new Date(),
-	  timer = setTimeout(run, 5);
+    ease = ease || function (t) {
+      return Math.sin(t * Math.PI / 2)
+    };
+    var self = this,
+    time = duration || 1000,
+    diff = to - from,
+    start = new Date(),
+    timer = setTimeout(run, 5);
 
-	  function run() {
-	    var delta = new Date() - start;
-	    if (delta > time) {
-	      fn(to || 1);
-				done && done();
-	      timer = null;
-	      return;
-	    }
-	    to ?
-				fn((diff * ease(delta / time)) + from) :
-				fn(ease(delta / time));
-			setTimeout(run, 5);
-	  }
-	}
+    function run() {
+      var delta = new Date() - start;
+      if (delta > time) {
+        fn(to || 1);
+        done && done();
+        timer = null;
+        return;
+      }
+      to ?
+        fn((diff * ease(delta / time)) + from) :
+        fn(ease(delta / time));
+      setTimeout(run, 5);
+    }
+  }
 
   function nextColor(pos, start, finish) {
     var r = [], i;
-		for (i = 0; i < 6; i++) {
-			from = hex.indexOf(start[i]);
-			to = hex.indexOf(finish[i]);
-			r[i] = hex[Math.floor((to - from) * pos + from)];
-		}
-		return '#' + r.join('');
+    for (i = 0; i < 6; i++) {
+      from = hex.indexOf(start[i]);
+      to = hex.indexOf(finish[i]);
+      r[i] = hex[Math.floor((to - from) * pos + from)];
+    }
+    return '#' + r.join('');
   }
 
   function getVal(pos, options, begin, end, k, i, v) {
@@ -103,7 +105,7 @@
   }
 
   function by(val, start, m, r, i) {
-    return (m = /^([+-])=([\d\.]+)/.exec(val)) ?
+    return (m = /^([+\-])=([\d\.]+)/.exec(val)) ?
       (i = parseInt(m[2], 10)) && (r = (start + i)) && m[1] == '+' ?
       r : start - i :
       parseInt(val, 10);
@@ -132,9 +134,9 @@
     }
 
     // one tween to rule them all
-    tween(duration, function (pos, v, k) {
+    tween(duration, function (pos, v) {
       for (i = els.length; i--;) {
-        for (k in options) {
+        for (var k in options) {
           v = getVal(pos, options, begin, end, k, i);
           ie && k == 'opacity' ?
             (els[i].filter = 'alpha(opacity=' + (v * 100) + ')') :

@@ -1,0 +1,137 @@
+<!DOCTYPE HTML>
+<html lang="en-us">
+  <head>
+    <title>Morpheus Tests</title>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <style type="text/css" media="screen">
+      #fixtures {
+        position: absolute;
+        top: -999px;
+      }
+      #test {
+        left: 5px;
+        top: 5px;
+        position: relative;
+      }
+    </style>
+    <link rel="stylesheet" href="../support/sink/src/sink.css" type="text/css">
+    <script src="../support/sink/src/sink.js"></script>
+    <script src="../src/morpheus.js" type="text/javascript"></script>
+  </head>
+  <body>
+    <h1>Morpheus Tests</h1>
+    <div id="fixtures">
+      <div id="test"></div>
+    </div>
+    <ol id="tests"></ol>
+
+    <script>
+      sink('Integers', function(test, ok, before, after) {
+        var el = document.getElementById('test');
+        before(function () {
+          el.style.left = 0;
+          el.style.top = '10px';
+        })
+        test('should accept non-pixel value', 1, function() {
+          morpheus(el, {
+            left: 5,
+            duration: 10,
+            complete: function () {
+              ok(el.style.left == '5px', 'el.style.left == "5px"');
+            }
+          })
+        })
+
+        test('should accept pixel value', 1, function () {
+          morpheus(el, {
+            left: '10px',
+            duration: 10,
+            complete: function () {
+              ok(el.style.left == '10px', 'el.style.left == "10px"');
+            }
+          })
+        })
+
+        test('should accept positive += offset', 2, function () {
+          morpheus(el, {
+            top: '+=10px',
+            left: '+=10',
+            duration: 10,
+            complete: function () {
+              ok(el.style.top == '20px', '10px +=10px == "20px"');
+              ok(el.style.left == '10px', '0 +=10 == "10px"');
+            }
+          })
+        })
+
+        test('should accept negative -= offset', 2, function () {
+          morpheus(el, {
+            top: '-=10px',
+            left: '-=10',
+            duration: 10,
+            complete: function () {
+              ok(el.style.top == '0px', '10px -=10px == "0px"');
+              ok(el.style.left == '-10px', '0 -=10 == "-10px"');
+            }
+          })
+        })
+
+      });
+
+      sink('Colors', function (test, ok) {
+
+        var el = document.getElementById('test');
+
+        test('should accept long hex', 1, function () {
+          morpheus(el, {
+            color: '#ff0000',
+            duration: 10,
+            complete: function () {
+              ok(el.style.color == 'rgb(255, 0, 0)', 'color is rgb(255, 0, 0)');
+            }
+          })
+        })
+
+        test('should accept short hex', 1, function () {
+          morpheus(el, {
+            color: '#f00',
+            duration: 10,
+            complete: function () {
+              ok(el.style.color == 'rgb(255, 0, 0)', 'color is rgb(255, 0, 0)');
+            }
+          })
+        })
+
+      });
+
+      sink('Syntax', function (test, ok) {
+
+        var el = document.getElementById('test');
+
+        test('should accept dashes in properties', 1, function () {
+          morpheus(el, {
+            'font-size': 30,
+            duration: 10,
+            complete: function () {
+              ok(el.style.fontSize == '30px', 'el.style.fontSize == "30px"');
+            }
+          })
+        })
+
+        test('should accept camelCase in properties', 1, function () {
+          morpheus(el, {
+            fontSize: 50,
+            duration: 10,
+            complete: function () {
+              ok(el.style.fontSize == '50px', 'el.style.fontSize == "50px"');
+            }
+          })
+        })
+
+      })
+
+      start();
+    </script>
+
+  </body>
+</html>

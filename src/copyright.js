@@ -1,6 +1,5 @@
 /*!
-  * Morpheus - An animation framework
-  * copyright Dustin Diaz 2011
-  * https://github.com/ded/morpheus
+  * Morpheus - A Brilliant Animator
+  * https://github.com/ded/morpheus - (c) Dustin Diaz 2011
   * License MIT
   */

@@ -3,6 +3,7 @@
   var ie = /msie/i.test(navigator.userAgent),
       hex = "0123456789abcdef",
       px = 'px',
+      html = doc.documentElement,
       unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1 },
       getStyle = doc.defaultView && doc.defaultView.getComputedStyle ?
         function (el, property) {

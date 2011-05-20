@@ -12,18 +12,21 @@ It looks like this:
 morpheus(elements, {
 	left: 50,
 	top: 100,
+	width: '+=50',
+	height: '-50px',
+	fontSize: '30px',
 	color: '#f00',
+	"background-color": '#f00',
 	duration: 500,
+	easing: easings.easeOut,
 	complete: function () {
 	  console.log('done');
 	}
 })
 ```
 
-Tweening
+General Tweening
 ------
-
-<h3>integers</h3>
 
 ``` js
 morpheus.tween(1000,
@@ -39,16 +42,31 @@ morpheus.tween(1000,
 )
 ```
 
-<h3>colors</h3>
+Browser support
+-----------
+Grade A & C Browsers according to Yahoo's [Graded Browser Support](http://developer.yahoo.com/yui/articles/gbs/)
+
+Ender integration
+--------
+Got [Ender](http://ender.no.de)? No? Get it.
+
+		$ npm install ender -g
+
+Add Morpheus to your existing Ender build
+
+		$ ender add morpheus
+
+Write code like a boss:
 
 ``` js
-morpheus.color(1000,
-	function (color) {
-		// do stuff with position
-	},
-	null,
-	null,
-	'#ff0', // start
-	'#cc33ee' // end
-)
+$('#content .boosh').animate({
+	left: 911,
+	complete: function () {
+		console.log('boosh');
+	}
+});
 ```
+
+*Morpheus (c) Dustin Diaz 2011 - License MIT*
+
+**Happy Morphing!**

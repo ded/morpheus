@@ -2,7 +2,6 @@
 
   var ie = /msie/i.test(navigator.userAgent),
       hex = "0123456789abcdef",
-      digit = /^-?[\d\.]+$/,
       px = 'px',
       unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1 },
       getStyle = doc.defaultView && doc.defaultView.getComputedStyle ?
@@ -33,20 +32,30 @@
 
         function (el, property) {
           return el.style[camelize(property)];
+        },
+      RGBtoHex = function () {
+        function hx(n) {
+          n = parseInt(n);
+          if (n == 0 || isNaN(n)) return '00';
+          n = Math.max(0, n);
+          n = Math.min(n, 255);
+          n = Math.round(n);
+          return hex.charAt((n - n % 16) / 16) + hex.charAt(n % 16);
+        }
+        return function (r, g, b) {
+          return hx(r) + hx(g) + hx(b);
         };
-
-  function toHex(c) {
-		var m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c);
-		return (m ? '#' + (m[1] << 16 | m[2] << 8 | m[3]).toString(16) : c)
-		.replace(/#(\w)(\w)(\w)$/, '#$1$1$2$2$3$3'); // from short to long
-	}
-
-	function camelize(s) {
-    return s.replace(/-(.)/g, function (m, m1) {
-      return m1.toUpperCase();
-    });
-  }
-
+      }(),
+      toHex = function (c) {
+    		var m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c);
+    		return (m ? '#' + RGBtoHex(m[1], m[2], m[3]) : c)
+    		.replace(/#(\w)(\w)(\w)$/, '#$1$1$2$2$3$3'); // short to long
+    	},
+      camelize = function (s) {
+        return s.replace(/-(.)/g, function (m, m1) {
+          return m1.toUpperCase();
+        });
+      };
 
   function tween(duration, fn, done, ease, from, to) {
 		ease = ease || function (t) {
@@ -73,26 +82,40 @@
 	  }
 	}
 
-	tween.color = function (duration, from, to, fn, done, ease) {
-		var start = toHex(from).slice(1),
-				finish = toHex(to).slice(1);
-		tween(duration, function (pos) {
-			var r = [], i;
-			for (i = 0; i < 6; i++) {
-				from = hex.indexOf(start[i]);
-				to = hex.indexOf(finish[i]);
-				r[i] = hex[Math.floor((to - from) * pos + from)];
-			}
-			fn('#' + r.join(''));
-		}, done, ease);
-	}
+  function nextColor(pos, start, finish) {
+    var r = [], i;
+		for (i = 0; i < 6; i++) {
+			from = hex.indexOf(start[i]);
+			to = hex.indexOf(finish[i]);
+			r[i] = hex[Math.floor((to - from) * pos + from)];
+		}
+		return '#' + r.join('');
+  }
+
+  function getVal(pos, options, begin, end, k, i, v) {
+    if (typeof begin[i][k] == 'string') {
+      return nextColor(pos, begin[i][k], end[i][k]);
+    } else {
+      v = (end[i][k] - begin[i][k]) * pos + begin[i][k];
+      !(k in unitless) && (v += px);
+      return v;
+    }
+  }
+
+  function by(val, start, m, r, i) {
+    return (m = /^([+-])=([\d\.]+)/.exec(val)) ?
+      (i = parseInt(m[2], 10)) && (r = (start + i)) && m[1] == '+' ?
+      r : start - i :
+      parseInt(val, 10);
+  }
 
   function morpheus(elements, options) {
     var els = elements ? (els = isFinite(elements.length) ? elements : [elements]) : [], i,
         complete = options.complete,
         duration = options.duration,
         ease = options.easing,
-        begin = [];
+        begin = [],
+        end = [];
     delete options.complete;
     delete options.duration;
     delete options.easing;
@@ -100,24 +123,25 @@
     // record beginning "from" state
     for (i = els.length; i--;) {
       begin[i] = {};
+      end[i] = {};
       for (var k in options) {
-        var v = options[k];
-        digit.test(v) && !(k in unitless) && (v += px);
-        begin[i][k] = parseInt(getStyle(els[i], k), 10);
+        var v = getStyle(els[i], k);
+        begin[i][k] = typeof options[k] == 'string' && options[k][0] == '#' ? toHex(v).slice(1) : parseFloat(v, 10);
+        end[i][k] = typeof options[k] == 'string' && options[k][0] == '#' ? toHex(options[k]).slice(1) : by(options[k], parseFloat(v, 10));
       }
     }
-    // (p = camelize(k)) && digit.test(v) && !(p in unitless) && (v += px);
 
     // one tween to rule them all
-    tween(duration, function (pos) {
+    tween(duration, function (pos, v, k) {
       for (i = els.length; i--;) {
-        for (var k in options) {
-          var val = (options[k] - begin[i][k]) * pos + begin[i][k];
-          els[i].style[k] = val + 'px';
+        for (k in options) {
+          v = getVal(pos, options, begin, end, k, i);
+          ie && k == 'opacity' ?
+            (els[i].filter = 'alpha(opacity=' + (v * 100) + ')') :
+            (els[i].style[camelize(k)] = v);
         }
       }
     }, complete, ease);
-
   }
 
   typeof module !== 'undefined' && module.exports &&

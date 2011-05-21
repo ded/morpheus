@@ -1,3 +1,9 @@
+/* The equations defined here are open source under BSD License.
+ * http://www.robertpenner.com/easing_terms_of_use.html (c) 2003 Robert Penner
+ * Adapted to single time-based by
+ * Brian Crescimanno <brian.crescimanno@gmail.com>
+ * Ken Snyder <kendsnyder@gmail.com>
+ */
 var easings = {
   easeOut: function (t) {
     return Math.sin(t * Math.PI / 2);

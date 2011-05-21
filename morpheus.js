@@ -3,11 +3,12 @@
   * https://github.com/ded/morpheus - (c) Dustin Diaz 2011
   * License MIT
   */
-!function (context, doc) {
+!function (context, doc, win) {
 
   var ie = /msie/i.test(navigator.userAgent),
       hex = "0123456789abcdef",
       px = 'px',
+      html = doc.documentElement,
       unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1 },
       getStyle = doc.defaultView && doc.defaultView.getComputedStyle ?
         function (el, property) {
@@ -38,31 +39,31 @@
         function (el, property) {
           return el.style[camelize(property)];
         },
-      RGBtoHex = function () {
-        function hx(n) {
-          n = parseInt(n, 10);
-          if (n === 0 || isNaN(n)) {
-            return '00';
-          }
-          n = Math.max(0, n);
-          n = Math.min(n, 255);
-          n = Math.round(n);
-          return hex.charAt((n - n % 16) / 16) + hex.charAt(n % 16);
-        }
-        return function (r, g, b) {
-          return hx(r) + hx(g) + hx(b);
-        };
-      }(),
+      rgb = function (r, g, b) {
+        return '#' + (1 << 24 | r << 16 | g << 8 | b).toString(16).substr(1);
+      },
       toHex = function (c) {
         var m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c);
-        return (m ? '#' + RGBtoHex(m[1], m[2], m[3]) : c)
+        return (m ? '#' + rgb(m[1], m[2], m[3]) : c)
         .replace(/#(\w)(\w)(\w)$/, '#$1$1$2$2$3$3'); // short to long
       },
       camelize = function (s) {
         return s.replace(/-(.)/g, function (m, m1) {
           return m1.toUpperCase();
         });
-      };
+      },
+      frame = function () {
+        return win.requestAnimationFrame  ||
+          win.webkitRequestAnimationFrame ||
+          win.mozRequestAnimationFrame    ||
+          win.oRequestAnimationFrame      ||
+          win.msRequestAnimationFrame     ||
+          function (callback) {
+            win.setTimeout(callback, 10);
+          };
+      }();
+
+  context['getStyle'] = getStyle;
 
   function tween(duration, fn, done, ease, from, to) {
     ease = ease || function (t) {
@@ -72,7 +73,7 @@
     time = duration || 1000,
     diff = to - from,
     start = new Date(),
-    timer = setTimeout(run, 5);
+    timer = frame(run);
 
     function run() {
       var delta = new Date() - start;
@@ -85,16 +86,18 @@
       to ?
         fn((diff * ease(delta / time)) + from) :
         fn(ease(delta / time));
-      setTimeout(run, 5);
+      frame(run, 5);
     }
   }
 
   function nextColor(pos, start, finish) {
-    var r = [], i;
+    var r = [], i, e;
     for (i = 0; i < 6; i++) {
-      from = hex.indexOf(start[i]);
-      to = hex.indexOf(finish[i]);
-      r[i] = hex[Math.floor((to - from) * pos + from)];
+      from = hex.indexOf(start[i] > 15 ? 15 : start[i]);
+      to = hex.indexOf(finish[i] > 15 ? 15 : finish[i]);
+      e = Math.floor((to - from) * pos + from);
+      e = e > 15 ? 15 : e < 0 ? 0 : e;
+      r[i] = hex[e];
     }
     return '#' + r.join('');
   }
@@ -103,7 +106,7 @@
     if (typeof begin[i][k] == 'string') {
       return nextColor(pos, begin[i][k], end[i][k]);
     } else {
-      v = (end[i][k] - begin[i][k]) * pos + begin[i][k];
+      v = Math.round(((end[i][k] - begin[i][k]) * pos + begin[i][k]) * 1000) / 1000;
       !(k in unitless) && (v += px);
       return v;
     }
@@ -133,7 +136,10 @@
       end[i] = {};
       for (var k in options) {
         var v = getStyle(els[i], k);
-        begin[i][k] = typeof options[k] == 'string' && options[k][0] == '#' ? toHex(v).slice(1) : parseFloat(v, 10);
+        begin[i][k] = typeof options[k] == 'string' && options[k][0] == '#' ?
+          v == 'transparent' ?
+            'ffffff' :
+            toHex(v).slice(1) : parseFloat(v, 10);
         end[i][k] = typeof options[k] == 'string' && options[k][0] == '#' ? toHex(options[k]).slice(1) : by(options[k], parseFloat(v, 10));
       }
     }
@@ -144,7 +150,7 @@
         for (var k in options) {
           v = getVal(pos, options, begin, end, k, i);
           ie && k == 'opacity' ?
-            (els[i].filter = 'alpha(opacity=' + (v * 100) + ')') :
+            (els[i].style.filter = 'alpha(opacity=' + (v * 100) + ')') :
             (els[i].style[camelize(k)] = v);
         }
       }
@@ -155,4 +161,4 @@
     (module.exports = morpheus);
   context['morpheus'] = morpheus;
 
-}(this, document);
+}(this, document, window);

@@ -63,8 +63,6 @@
           };
       }();
 
-  context['getStyle'] = getStyle;
-
   function tween(duration, fn, done, ease, from, to) {
     ease = ease || function (t) {
       return Math.sin(t * Math.PI / 2)

@@ -42,7 +42,6 @@
     <script src="../src/easings.js" type="text/javascript"></script>
     <script type="text/javascript">
       $.domReady(function () {
-
         $('#left .wha').animate({
           duration: 1000,
           opacity: 1,
@@ -54,7 +53,6 @@
           easing: easings.bouncePast
         })
 
-
         $('#right .wha').animate({
           duration: 1000,
           opacity: 1,
@@ -65,14 +63,13 @@
           right: '400px',
           easing: easings.bouncePast
         })
-
-
       })
     </script>
   </head>
   <body>
     <div id="left">
-      <div id="first" class="wha wha-1"></div>
+      <div class="wha wha-1"></div>
+      <div class="wha wha-1"></div>
       <div class="wha wha-2"></div>
       <div class="wha wha-3"></div>
       <div class="wha wha-4"></div>

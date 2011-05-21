@@ -40,11 +40,11 @@
           return el.style[camelize(property)];
         },
       rgb = function (r, g, b) {
-        return '#' + (1 << 24 | r << 16 | g << 8 | b).toString(16).substr(1);
+        return '#' + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1);
       },
       toHex = function (c) {
         var m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c);
-        return (m ? '#' + rgb(m[1], m[2], m[3]) : c)
+        return (m ? rgb(m[1], m[2], m[3]) : c)
         .replace(/#(\w)(\w)(\w)$/, '#$1$1$2$2$3$3'); // short to long
       },
       camelize = function (s) {

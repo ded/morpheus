@@ -39,20 +39,27 @@
         function (el, property) {
           return el.style[camelize(property)];
         },
+
       rgb = function (r, g, b) {
         return '#' + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1);
       },
+
       toHex = function (c) {
         var m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c);
         return (m ? rgb(m[1], m[2], m[3]) : c)
         .replace(/#(\w)(\w)(\w)$/, '#$1$1$2$2$3$3'); // short to long
       },
+
+      // change font-size => fontSize etc.
       camelize = function (s) {
         return s.replace(/-(.)/g, function (m, m1) {
           return m1.toUpperCase();
         });
       },
+
       frame = function () {
+        // native animation frames
+        // http://webstuff.nfshost.com/anim-timing/Overview.html
         // http://dev.chromium.org/developers/design-documents/requestanimationframe-implementation
         return win.requestAnimationFrame  ||
           win.webkitRequestAnimationFrame ||
@@ -71,20 +78,20 @@
       // default to a pleasant-to-the-eye easeOut (like native animations)
       return Math.sin(t * Math.PI / 2)
     };
-    var self = this,
-    time = duration || 1000,
-    diff = to - from,
-    start = +new Date(),
-    timer = frame(run);
+    var time = duration || 1000,
+        diff = to - from,
+        start = +new Date();
+    frame(run);
 
     function run(t) {
       var delta = t - start;
       if (delta > time) {
         fn(to || 1);
         done && done();
-        timer = null;
         return;
       }
+      // if you don't specify a 'to' you can use tween as a generic delta tweener
+      // cool, eh?
       to ?
         fn((diff * ease(delta / time)) + from) :
         fn(ease(delta / time));
@@ -172,6 +179,8 @@
       }
     }, complete, ease);
   }
+
+  morpheus.tween = tween;
 
   typeof module !== 'undefined' && module.exports &&
     (module.exports = morpheus);

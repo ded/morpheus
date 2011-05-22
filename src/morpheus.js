@@ -1,7 +1,6 @@
 !function (context, doc, win) {
 
   var ie = /msie/i.test(navigator.userAgent),
-      hex = "0123456789abcdef",
       px = 'px',
       html = doc.documentElement,
       unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1 },
@@ -91,11 +90,11 @@
   function nextColor(pos, start, finish) {
     var r = [], i, e;
     for (i = 0; i < 6; i++) {
-      from = hex.indexOf(start[i] > 15 ? 15 : start[i]);
-      to = hex.indexOf(finish[i] > 15 ? 15 : finish[i]);
+      from = Math.min(15, parseInt(start.charAt(i),  16));
+      to   = Math.min(15, parseInt(finish.charAt(i), 16));
       e = Math.floor((to - from) * pos + from);
       e = e > 15 ? 15 : e < 0 ? 0 : e;
-      r[i] = hex[e];
+      r[i] = e.toString(16);
     }
     return '#' + r.join('');
   }
@@ -145,11 +144,11 @@
       end[i] = {};
       for (var k in options) {
         var v = getStyle(els[i], k);
-        begin[i][k] = typeof options[k] == 'string' && options[k][0] == '#' ?
+        begin[i][k] = typeof options[k] == 'string' && options[k].charAt(0) == '#' ?
           v == 'transparent' ? // default to 'white' if transparent (fairly safe bet)
             'ffffff' :
             toHex(v).slice(1) : parseFloat(v, 10);
-        end[i][k] = typeof options[k] == 'string' && options[k][0] == '#' ? toHex(options[k]).slice(1) : by(options[k], parseFloat(v, 10));
+        end[i][k] = typeof options[k] == 'string' && options[k].charAt(0) == '#' ? toHex(options[k]).slice(1) : by(options[k], parseFloat(v, 10));
       }
     }
 

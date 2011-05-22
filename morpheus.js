@@ -53,28 +53,32 @@
         });
       },
       frame = function () {
+        // http://dev.chromium.org/developers/design-documents/requestanimationframe-implementation
         return win.requestAnimationFrame  ||
           win.webkitRequestAnimationFrame ||
           win.mozRequestAnimationFrame    ||
           win.oRequestAnimationFrame      ||
           win.msRequestAnimationFrame     ||
           function (callback) {
-            win.setTimeout(callback, 10);
+            win.setTimeout(function () {
+              callback(+new Date());
+            }, 10);
           };
       }();
 
   function tween(duration, fn, done, ease, from, to) {
     ease = ease || function (t) {
+      // default to a pleasant-to-the-eye easeOut (like native animations)
       return Math.sin(t * Math.PI / 2)
     };
     var self = this,
     time = duration || 1000,
     diff = to - from,
-    start = new Date(),
+    start = +new Date(),
     timer = frame(run);
 
-    function run() {
-      var delta = new Date() - start;
+    function run(t) {
+      var delta = t - start;
       if (delta > time) {
         fn(to || 1);
         done && done();
@@ -84,10 +88,11 @@
       to ?
         fn((diff * ease(delta / time)) + from) :
         fn(ease(delta / time));
-      frame(run, 5);
+      frame(run);
     }
   }
 
+  // this gets you the next hex in line according to a 'position'
   function nextColor(pos, start, finish) {
     var r = [], i, e;
     for (i = 0; i < 6; i++) {
@@ -104,12 +109,15 @@
     if (typeof begin[i][k] == 'string') {
       return nextColor(pos, begin[i][k], end[i][k]);
     } else {
+      // round so we don't get crazy long floats
       v = Math.round(((end[i][k] - begin[i][k]) * pos + begin[i][k]) * 1000) / 1000;
+      // some css properties don't require a unit (like zIndex, lineHeight, opacity)
       !(k in unitless) && (v += px);
       return v;
     }
   }
 
+  // support for relative movement via '+=n' or '-=n'
   function by(val, start, m, r, i) {
     return (m = /^([+\-])=([\d\.]+)/.exec(val)) ?
       (i = parseInt(m[2], 10)) && (r = (start + i)) && m[1] == '+' ?
@@ -117,6 +125,14 @@
       parseInt(val, 10);
   }
 
+  /**
+    * morpheus: main API method
+    * elements: HTMLElement(s)
+    * options: mixed bag between CSS Style properties & animation options
+    *  - duration: time in ms - defaults to 1000ms
+    *  - easing: a transition method - defaults to an 'easeOut' algorithm
+    *  - complete: a callback method for when all elements have finished
+    */
   function morpheus(elements, options) {
     var els = elements ? (els = isFinite(elements.length) ? elements : [elements]) : [], i,
         complete = options.complete,
@@ -128,14 +144,14 @@
     delete options.duration;
     delete options.easing;
 
-    // record beginning "from" state
     for (i = els.length; i--;) {
+      // record beginning and end states to calculate positions
       begin[i] = {};
       end[i] = {};
       for (var k in options) {
         var v = getStyle(els[i], k);
         begin[i][k] = typeof options[k] == 'string' && options[k][0] == '#' ?
-          v == 'transparent' ?
+          v == 'transparent' ? // default to 'white' if transparent (fairly safe bet)
             'ffffff' :
             toHex(v).slice(1) : parseFloat(v, 10);
         end[i][k] = typeof options[k] == 'string' && options[k][0] == '#' ? toHex(options[k]).slice(1) : by(options[k], parseFloat(v, 10));
@@ -144,6 +160,8 @@
 
     // one tween to rule them all
     tween(duration, function (pos, v) {
+      // normally not a fan of optimizing for() loops, but we want something
+      // fast for animating
       for (i = els.length; i--;) {
         for (var k in options) {
           v = getVal(pos, options, begin, end, k, i);

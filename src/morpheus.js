@@ -1,8 +1,10 @@
 !function (context, doc, win) {
 
-  var ie = /msie/i.test(navigator.userAgent),
-      px = 'px',
+  var px = 'px',
       html = doc.documentElement,
+      opasity = function () {
+        return typeof doc.createElement('a').style.opacity !== 'undefined';
+      }(),
       unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1 },
       getStyle = doc.defaultView && doc.defaultView.getComputedStyle ?
         function (el, property) {
@@ -10,7 +12,7 @@
           var computed = doc.defaultView.getComputedStyle(el, '');
           computed && (value = computed[camelize(property)]);
           return el.style[property] || value;
-        } : (ie && html.currentStyle) ?
+        } : html.currentStyle ?
 
         function (el, property) {
           property = camelize(property);
@@ -158,7 +160,6 @@
         end[i][k] = typeof options[k] == 'string' && options[k].charAt(0) == '#' ? toHex(options[k]).slice(1) : by(options[k], parseFloat(v, 10));
       }
     }
-
     // one tween to rule them all
     tween(duration, function (pos, v) {
       // normally not a fan of optimizing for() loops, but we want something
@@ -166,7 +167,7 @@
       for (i = els.length; i--;) {
         for (var k in options) {
           v = getVal(pos, options, begin, end, k, i);
-          ie && k == 'opacity' ?
+          k == 'opacity' && !opasity ?
             (els[i].style.filter = 'alpha(opacity=' + (v * 100) + ')') :
             (els[i].style[camelize(k)] = v);
         }

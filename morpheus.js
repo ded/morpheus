@@ -85,7 +85,7 @@
     function run(t) {
       var delta = t - start;
       if (delta > time) {
-        fn(to || 1);
+        fn(isFinite(to) ? to : 1);
         done && done();
         return;
       }

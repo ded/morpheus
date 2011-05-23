@@ -36,6 +36,14 @@
         left: auto !important;
         right: 0;
       }
+      #op {
+        width: 100px;
+        height: 100px;
+        background: blue;
+        opacity: 0;
+        filter: alpha(opacity=0);
+        margin: 0 auto;
+      }
     </style>
     <script src="ender.js" type="text/javascript"></script>
     <script src="../src/morpheus.js" type="text/javascript"></script>
@@ -51,7 +59,12 @@
           width: '-=20',
           top: 100,
           left: '400px',
-          easing: easings.bouncePast
+          easing: easings.bouncePast,
+          complete: function () {
+            morpheus(document.getElementById('op'), {
+              opacity: 1
+            })
+          }
         })
 
         $('#right .wha').animate({
@@ -81,5 +94,6 @@
       <div class="wha wha-3"></div>
       <div class="wha wha-4"></div>
     </div>
+    <div id="op"></div>
   </body>
 </html>

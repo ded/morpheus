@@ -2,6 +2,7 @@
 
   var ie = /msie/i.test(navigator.userAgent),
       px = 'px',
+      rgbOhex = /^rgb\(|#/,
       html = doc.documentElement,
       unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1 },
       getStyle = doc.defaultView && doc.defaultView.getComputedStyle ?
@@ -151,10 +152,14 @@
       end[i] = {};
       for (var k in options) {
         var v = getStyle(els[i], k);
-        begin[i][k] = typeof options[k] == 'string' && options[k].charAt(0) == '#' ?
-          v == 'transparent' ? // default to 'white' if transparent (fairly safe bet)
-            'ffffff' :
-            toHex(v).slice(1) : parseFloat(v, 10);
+        if (typeof options[k] == 'string' &&
+            rgbOhex.test(options[k]) &&
+            !rgbOhex.test(v))
+        continue; // cannot animate colors like 'orange' or 'transparent'
+                  // only #xxx, #xxxxxx, rgb(n,n,n)
+
+        begin[i][k] = typeof options[k] == 'string' && rgbOhex.test(options[k]) ?
+          toHex(v).slice(1) : parseFloat(v);
         end[i][k] = typeof options[k] == 'string' && options[k].charAt(0) == '#' ? toHex(options[k]).slice(1) : by(options[k], parseFloat(v, 10));
       }
     }

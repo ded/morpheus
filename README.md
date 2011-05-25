@@ -10,10 +10,10 @@ It looks like this:
 
 ``` js
 morpheus(elements, {
-  left: 50,
+  left: -50,
   top: 100,
   width: '+=50',
-  height: '-50px',
+  height: '-=50px',
   fontSize: '30px',
   color: '#f00',
   "background-color": '#f00',

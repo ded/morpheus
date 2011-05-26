@@ -69,6 +69,8 @@ $('#content .boosh').animate({
 
 Usage Notes
 -----------
+
+<h3>Color</h3>
 If you're serious about *color animation*, there's a few precautions you'll need to take ahead of time. In order to morph *from* one color to another, you need to make sure the elements you're animating *have an inherited color style* to start with. Furthermore, those styles need to be represented in <code>rgb</code>, or <code>hex</code>, and not a named color (like <code>red</code>, or <code>orange</code>) -- that is unless you want to write code to map the [color conversion](http://www.w3schools.com/css/css_colornames.asp) yourself.
 
 Therefore, at minimum, you need to set a color before animating.
@@ -88,6 +90,21 @@ $('div.things').css('color', '#ff0').animate({
 })
 ```
 
-*Morpheus (c) Dustin Diaz 2011 - License MIT*
+<h3>Units</h3>
+If you're considering animating by a CSS unit of measurement like <code>em</code>, <code>pt</code>, or <code>%</code>, like-wise to color animation, you must set the size ahead of time before animating:
+
+``` js
+$('div.intro')
+  .css({
+    fontSize: '2em',
+    width: '50%'
+  })
+  .animate({
+    fontSize: '+=1.5em',
+    width: '100%'
+  })
+```
+
+Morpheus (c) Dustin Diaz 2011 - License MIT
 
 **Happy Morphing!**

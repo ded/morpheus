@@ -5,9 +5,10 @@
   */
 !function (context, doc, win) {
 
-  var px = 'px',
+  var html = doc.documentElement,
       rgbOhex = /^rgb\(|#/,
-      html = doc.documentElement,
+      relVal = /^([+\-])=([\d\.]+)/,
+      numUnit = /^(?:[\+\-]=)?\d+(?:\.\d+)?(%|in|cm|mm|em|ex|pt|pc|px)$/,
       opasity = function () {
         return typeof doc.createElement('a').style.opacity !== 'undefined';
       }(),
@@ -114,24 +115,24 @@
     return '#' + r.join('');
   }
 
-  function getVal(pos, begin, end, k, i, v) {
+  function getVal(pos, units, begin, end, k, i, v) {
     if (typeof begin[i][k] == 'string') {
       return nextColor(pos, begin[i][k], end[i][k]);
     } else {
       // round so we don't get crazy long floats
       v = Math.round(((end[i][k] - begin[i][k]) * pos + begin[i][k]) * 1000) / 1000;
       // some css properties don't require a unit (like zIndex, lineHeight, opacity)
-      !(k in unitless) && (v += px);
+      !(k in unitless) && (v += units[i][k] || 'px');
       return v;
     }
   }
 
   // support for relative movement via '+=n' or '-=n'
   function by(val, start, m, r, i) {
-    return (m = /^([+\-])=([\d\.]+)/.exec(val)) ?
-      (i = parseInt(m[2], 10)) && (r = (start + i)) && m[1] == '+' ?
+    return (m = relVal.exec(val)) ?
+      (i = parseFloat(m[2])) && (r = (start + i)) && m[1] == '+' ?
       r : start - i :
-      parseInt(val, 10);
+      parseFloat(val);
   }
 
   /**
@@ -148,7 +149,8 @@
         duration = options.duration,
         ease = options.easing,
         begin = [],
-        end = [];
+        end = [],
+        units = [];
     delete options.complete;
     delete options.duration;
     delete options.easing;
@@ -157,8 +159,9 @@
       // record beginning and end states to calculate positions
       begin[i] = {};
       end[i] = {};
+      units[i] = {};
       for (var k in options) {
-        var v = getStyle(els[i], k);
+        var v = getStyle(els[i], k), unit;
         if (typeof options[k] == 'string' &&
             rgbOhex.test(options[k]) &&
             !rgbOhex.test(v)) {
@@ -169,6 +172,8 @@
         begin[i][k] = typeof options[k] == 'string' && rgbOhex.test(options[k]) ?
           toHex(v).slice(1) : parseFloat(v);
         end[i][k] = typeof options[k] == 'string' && options[k].charAt(0) == '#' ? toHex(options[k]).slice(1) : by(options[k], parseFloat(v, 10));
+        // record original unit
+        typeof options[k] == 'string' && (unit = options[k].match(numUnit)) && (units[i][k] = unit[1]);
       }
     }
     // one tween to rule them all
@@ -177,7 +182,7 @@
       // fast for animating
       for (i = els.length; i--;) {
         for (var k in options) {
-          v = getVal(pos, begin, end, k, i);
+          v = getVal(pos, units, begin, end, k, i);
           k == 'opacity' && !opasity ?
             (els[i].style.filter = 'alpha(opacity=' + (v * 100) + ')') :
             (els[i].style[camelize(k)] = v);
@@ -187,6 +192,7 @@
   }
 
   morpheus.tween = tween;
+  morpheus.getStyle = getStyle;
 
   typeof module !== 'undefined' && module.exports &&
     (module.exports = morpheus);

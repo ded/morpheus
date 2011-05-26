@@ -7,8 +7,10 @@
       body {
         height: 100%;
         overflow: hidden;
+        font-size: 12px;
       }
       .wha {
+        z-index: 1;
         left: 0;
         top: 0;
         position: absolute;
@@ -37,12 +39,17 @@
         right: 0;
       }
       #op {
-        width: 100px;
-        height: 100px;
+        color: #fff;
+        width: 150px;
+        height: 150px;
+        padding: 20px;
         background: blue;
         opacity: 0;
         filter: alpha(opacity=0);
         margin: 0 auto;
+        font-family: helvetica neue, helvetica, arial;
+        font-weight: 100;
+        text-align: center;
       }
     </style>
     <script src="ender.js" type="text/javascript"></script>
@@ -62,7 +69,9 @@
           easing: easings.bouncePast,
           complete: function () {
             morpheus(document.getElementById('op'), {
-              opacity: 1
+              opacity: 1,
+              fontSize: '+=1.8em',
+              easing: easings.spring
             })
           }
         })
@@ -94,6 +103,6 @@
       <div class="wha wha-3"></div>
       <div class="wha wha-4"></div>
     </div>
-    <div id="op"></div>
+    <div id="op" style="font-size: 0.5em">mø®phéüs</div>
   </body>
 </html>

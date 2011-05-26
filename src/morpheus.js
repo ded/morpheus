@@ -109,7 +109,7 @@
     return '#' + r.join('');
   }
 
-  function getVal(pos, options, begin, end, k, i, v) {
+  function getVal(pos, begin, end, k, i, v) {
     if (typeof begin[i][k] == 'string') {
       return nextColor(pos, begin[i][k], end[i][k]);
     } else {
@@ -156,10 +156,11 @@
         var v = getStyle(els[i], k);
         if (typeof options[k] == 'string' &&
             rgbOhex.test(options[k]) &&
-            !rgbOhex.test(v))
-        continue; // cannot animate colors like 'orange' or 'transparent'
-                  // only #xxx, #xxxxxx, rgb(n,n,n)
-
+            !rgbOhex.test(v)) {
+          delete options[k]
+          continue; // cannot animate colors like 'orange' or 'transparent'
+                    // only #xxx, #xxxxxx, rgb(n,n,n)
+        }
         begin[i][k] = typeof options[k] == 'string' && rgbOhex.test(options[k]) ?
           toHex(v).slice(1) : parseFloat(v);
         end[i][k] = typeof options[k] == 'string' && options[k].charAt(0) == '#' ? toHex(options[k]).slice(1) : by(options[k], parseFloat(v, 10));
@@ -171,7 +172,7 @@
       // fast for animating
       for (i = els.length; i--;) {
         for (var k in options) {
-          v = getVal(pos, options, begin, end, k, i);
+          v = getVal(pos, begin, end, k, i);
           k == 'opacity' && !opasity ?
             (els[i].style.filter = 'alpha(opacity=' + (v * 100) + ')') :
             (els[i].style[camelize(k)] = v);

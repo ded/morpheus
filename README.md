@@ -4,7 +4,7 @@
 -----
 A Brilliant Animator.
 
-Morpheus lets you "tween anything" in parallel on multiple elements, from integers to colors, with easing transitions, in a single high-performant loop.
+Morpheus lets you "tween anything" in parallel on multiple elements, from integers to colors, with easing transitions, in a single high-performant loop utilizing the CPU-friendly [requestAnimationFrame standard](http://webstuff.nfshost.com/anim-timing/Overview.html).
 
 It looks like this:
 

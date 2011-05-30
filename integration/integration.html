@@ -51,6 +51,17 @@
         font-weight: 100;
         text-align: center;
       }
+      #bez {
+        position: absolute;
+        left: 100px;
+        top: 100px;
+        width: 20px;
+        height: 20px;
+        background: purple;
+        border-radius: 10px;
+        -moz-border-radius: 10px;
+        -webkit-border-radius: 10px;
+      }
     </style>
     <script src="ender.js" type="text/javascript"></script>
     <script src="../src/morpheus.js" type="text/javascript"></script>
@@ -86,10 +97,28 @@
           right: '400px',
           easing: easings.bouncePast
         })
+
+        function loop() {
+          $('#bez').animate({
+            duration: 3000,
+            top: 100,
+            left: 100,
+            bezier: [[150, 300], [300, 150]],
+            easing: function (t) {
+              return t;
+            },
+            complete: loop,
+            easing: easings.bounce
+          })
+        }
+        loop();
+
+
       })
     </script>
   </head>
   <body>
+    <div id="bez"></div>
     <div id="left">
       <div class="wha wha-1"></div>
       <div class="wha wha-1"></div>

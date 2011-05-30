@@ -4,12 +4,13 @@
 -----
 A Brilliant Animator.
 
-Morpheus lets you "tween anything" in parallel on multiple elements, from integers to colors, with easing transitions, in a single high-performant loop utilizing the CPU-friendly [requestAnimationFrame standard](http://webstuff.nfshost.com/anim-timing/Overview.html).
+Morpheus lets you "tween anything" in parallel on multiple elements, from integers of any unit to colors, with easing transitions and bezier curves, in a single high-performant loop utilizing the CPU-friendly [requestAnimationFrame standard](http://webstuff.nfshost.com/anim-timing/Overview.html).
 
 It looks like this:
 
 ``` js
 morpheus(elements, {
+  // CSS
   left: -50,
   top: 100,
   width: '+=50',
@@ -17,8 +18,11 @@ morpheus(elements, {
   fontSize: '30px',
   color: '#f00',
   "background-color": '#f00',
+
+  // API
   duration: 500,
   easing: easings.easeOut,
+  bezier: [[100, 200], [200, 100]],
   complete: function () {
     console.log('done');
   }
@@ -31,7 +35,9 @@ General Tweening
 ``` js
 morpheus.tween(1000,
   function (position) {
-    // do stuff with position
+    // do stuff with position...
+    // like for example, use bezier curve points :)
+    var xy = morpheus.bezier([[startX, startY], <[n control points]>, [endX, endY]], position)
   },
   function () {
     console.log('done');

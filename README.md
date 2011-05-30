@@ -48,6 +48,8 @@ morpheus.tween(1000,
 )
 ```
 
+More examples are included in <code>examples.html</code>
+
 Browser support
 -----------
 Grade A & C Browsers according to Yahoo's [Graded Browser Support](http://developer.yahoo.com/yui/articles/gbs/)

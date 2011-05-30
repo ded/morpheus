@@ -53,8 +53,8 @@
       }
       #bez {
         position: absolute;
-        left: 100px;
-        top: 100px;
+        left: 200px;
+        top: 200px;
         width: 20px;
         height: 20px;
         background: purple;
@@ -101,14 +101,16 @@
         function loop() {
           $('#bez').animate({
             duration: 3000,
-            top: 100,
-            left: 100,
-            bezier: [[150, 300], [300, 150]],
+            left: 200,
+            top: 200,
+            bezier: [[300, 100], [400, 200], [300, 300]],
             easing: function (t) {
               return t;
             },
             complete: loop,
-            easing: easings.bounce
+            easing: function (t) {
+              return t
+            }
           })
         }
         loop();

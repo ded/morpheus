@@ -1,0 +1,183 @@
+<!DOCTYPE HTML>
+<html lang="en-us">
+  <head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <title>Morpheus Examples</title>
+    <style type="text/css" media="screen">
+      body {
+        font: 100 13px helvetica neue;
+      }
+      h1,h2 {
+        font-weight: 100;
+        margin: 0;
+        padding: 0;
+      }
+      h1 {
+        font-size: 36px;
+      }
+      #doc {
+        width: 550px;
+        margin: 0 auto;
+      }
+      .stage {
+        padding: 50px;
+        background: #eee;
+        border-radius: 10px;
+        border: 1px solid #bbb;
+        margin: 15px 0;
+        position: relative;
+      }
+      .box {
+        top: 0;
+        left: 0;
+        position: relative;
+        width: 20px;
+        height: 20px;
+        border-radius: 2px;
+        background: #f00;
+        margin: 5px 0;
+      }
+    </style>
+    <script src="src/morpheus.js" type="text/javascript"></script>
+    <script src="src/easings.js" type="text/javascript"></script>
+    <script src="integration/ender.js" type="text/javascript"></script>
+    <script type="text/javascript">
+      function id(el) {
+        return document.getElementById(el)
+      }
+    </script>
+  </head>
+  <body>
+    <div id="doc">
+      <h1>Morpheus Examples</h1>
+
+      <div class="stage">
+        <h2>General</h2>
+        <div id="ex1" class="box"></div>
+        <button id="go-ex1">Go</button>
+        <script type="text/javascript">
+          id('go-ex1').onclick = function () {
+            id('go-ex1').disabled = true
+            id('ex1').style.left = 0
+            morpheus(id('ex1'), {
+              left: 400,
+              complete: function () {
+                id('go-ex1').disabled = false
+              }
+            })
+          }
+        </script>
+      </div>
+
+      <div class="stage">
+        <h2>Color</h2>
+        <div id="ex3" class="box"></div>
+        <button id="go-ex3">Go</button>
+        <script type="text/javascript">
+          id('go-ex3').onclick = function () {
+            id('go-ex3').disabled = true
+            id('ex3').style.backgroundColor = '#f00'
+            morpheus(id('ex3'), {
+              backgroundColor: '#00f',
+              duration: 2000,
+              complete: function () {
+                id('go-ex3').disabled = false
+              }
+            })
+          }
+        </script>
+      </div>
+
+      <div class="stage">
+        <h2>Motion + Color</h2>
+        <div id="ex2" class="box"></div>
+        <button id="go-ex2">Go</button>
+        <script type="text/javascript">
+          id('go-ex2').onclick = function () {
+            id('go-ex2').disabled = true
+            id('ex2').style.left = 0
+            id('ex2').style.backgroundColor = '#f00'
+            id('ex2').style.width = '20px'
+            morpheus(id('ex2'), {
+              left: 400,
+              width: '+=20',
+              backgroundColor: '#00f',
+              easing: easings.bounce,
+              complete: function () {
+                id('go-ex2').disabled = false
+              }
+            })
+          }
+        </script>
+      </div>
+
+      <div class="stage">
+        <h2>Alternative units</h2>
+        <div id="ex4" style="font-size: 1.2em;left: 200px;position: absolute;">hello world</div>
+        <button id="go-ex4">Go</button>
+        <script type="text/javascript">
+          id('go-ex4').onclick = function () {
+            id('go-ex4').disabled = true
+            id('ex4').style.fontSize = '1.2em'
+            morpheus(id('ex4'), {
+              fontSize: '+=2.1em',
+              easing: easings.spring,
+              complete: function () {
+                id('go-ex4').disabled = false
+              }
+            })
+          }
+        </script>
+      </div>
+
+      <div class="stage">
+        <h2>Bezier Curves</h2>
+        <div id="ex5" class="box"></div>
+        <button id="go-ex5">Go</button>
+        <script type="text/javascript">
+          id('go-ex5').onclick = function () {
+            id('go-ex5').disabled = true
+            id('ex5').style.left = 0
+            morpheus(id('ex5'), {
+              duration: 2000,
+              easing: easings.easeIn,
+              left: 400,
+              bezier: [[150, 300], [300, -300]],
+              complete: function () {
+                id('go-ex5').disabled = false
+              }
+            })
+          }
+        </script>
+      </div>
+
+      <div class="stage">
+        <h2>Multiple elements</h2>
+        <div id="ex6">
+          <div class="box"></div>
+          <div class="box"></div>
+        </div>
+        <button id="go-ex6">Go</button>
+        <script type="text/javascript">
+          id('go-ex6').onclick = function () {
+            id('go-ex6').disabled = true
+            $('#ex6 .box').css({
+              left: 0,
+              top: 0
+            })
+            morpheus(id('ex6').getElementsByTagName('div'), {
+              duration: 3000,
+              easing: easings.easeOutStrong,
+              left: 400,
+              bezier: [[150, -300], [-300, 300]],
+              complete: function () {
+                id('go-ex6').disabled = false
+              }
+            })
+          }
+        </script>
+      </div>
+
+    </div>
+  </body>
+</html>

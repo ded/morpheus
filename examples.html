@@ -163,7 +163,7 @@
         </script>
       </div>
 
-      <div class="stage" id="last">
+      <div class="stage">
         <h2>Multiple elements</h2>
         <div id="ex6">
           <div data-to="#0f0" class="box"></div>
@@ -205,6 +205,41 @@
           }
         </script>
       </div>
+
+      <div class="stage" id="last">
+        <h2>stopping animations</h2>
+        <div style="width:100px;height:100px;" id="ex7" class="box"></div>
+        <script type="text/javascript">
+        !function () {
+          var anim = {
+            stop: function () {}
+          }
+
+          id('ex7').onclick = function () {
+            anim.stop(true);
+          };
+
+          id('ex7').onmouseover = function () {
+            anim.stop();
+            anim = morpheus(id('ex7'), {
+              backgroundColor: '#00f',
+              width: 400
+            })
+          };
+
+          id('ex7').onmouseout = function () {
+            anim.stop();
+            anim = morpheus(id('ex7'), {
+              backgroundColor: '#f00',
+              width: 100
+            })
+          };
+
+        }();
+
+        </script>
+      </div>
+
 
     </div>
   </body>

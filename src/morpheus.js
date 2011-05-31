@@ -88,6 +88,7 @@
     * @param ease {optional}: easing method. defaults to easeOut
     * @param from {optional}: integer to start from
     * @param to {optional}: integer to end at
+    * @returns method to stop the animation
     */
   function tween(duration, fn, done, ease, from, to) {
     ease = ease || function (t) {
@@ -96,13 +97,16 @@
     };
     var time = duration || 1000,
         diff = to - from,
-        start = +new Date();
+        start = +new Date(),
+        stop = 0,
+        end = 0;
     frame(run);
 
     function run(t) {
       var delta = t - start;
-      if (delta > time) {
-        fn(isFinite(to) ? to : 1);
+      if (delta > time || stop) {
+        to = isFinite(to) ? to : 1;
+        stop ? end && fn(to) : fn(to);
         done && done();
         return;
       }
@@ -112,6 +116,12 @@
         fn((diff * ease(delta / time)) + from) :
         fn(ease(delta / time));
       frame(run);
+    }
+    return {
+      stop: function (jump) {
+        stop = 1;
+        end = jump; // jump to end of animation?
+      }
     }
   }
 
@@ -260,7 +270,7 @@
       }
     }
     // ONE TWEEN TO RULE THEM ALL
-    tween(duration, function (pos, v, xy) {
+    return tween(duration, function (pos, v, xy) {
       // normally not a fan of optimizing for() loops, but we want something
       // fast for animating
       for (i = els.length; i--;) {

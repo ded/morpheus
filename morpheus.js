@@ -65,6 +65,10 @@
         });
       },
 
+      fun = function (f) {
+        return typeof f == 'function';
+      },
+
       frame = function () {
         // native animation frames
         // http://webstuff.nfshost.com/anim-timing/Overview.html
@@ -175,12 +179,18 @@
   }
 
   /**
-    * morpheus: main API method!
-    * @param elements: HTMLElement(s)
+    * morpheus:
+    * @param element(s): HTMLElement(s)
     * @param options: mixed bag between CSS Style properties & animation options
-    *  - duration: time in ms - defaults to 1000ms
+    *  - {n} CSS properties|values
+    *     - value can be strings, integers,
+    *     - or callback function that receives element to be animated. method must return value to be tweened
+    *     - relative animations start with += or -= followed by integer
+    *  - duration: time in ms - defaults to 1000(ms)
     *  - easing: a transition method - defaults to an 'easeOut' algorithm
     *  - complete: a callback method for when all elements have finished
+    *  - bezier: array of arrays containing x|y coordinates that define the bezier points. defaults to none
+    *     - this may also be a function that receives element to be animated. it must return a value
     */
   function morpheus(elements, options) {
     var els = elements ? (els = isFinite(elements.length) ? elements : [elements]) : [], i,
@@ -192,18 +202,20 @@
         end = [],
         units = [],
         bez = [],
-        xy = [];
+        originalLeft,
+        originalTop;
 
     delete options.complete;
     delete options.duration;
     delete options.easing;
     delete options.bezier;
 
-    // are we 'moving'?
     if (points) {
+      // remember the original values for top|left
+      originalLeft = options.left;
+      originalTop = options.top;
       delete options.right;
       delete options.bottom;
-      xy = [options.left || 0, options.top || 0];
       delete options.left;
       delete options.top;
     }
@@ -215,29 +227,41 @@
       end[i] = {};
       units[i] = {};
 
+      // are we 'moving'?
       if (points) {
-        bez[i] = points;
+
+        var left = getStyle(els[i], 'left'),
+            top = getStyle(els[i], 'top'),
+            xy = [by(fun(originalLeft) ? originalLeft(els[i]) : originalLeft || 0, parseFloat(left)),
+                  by(fun(originalTop) ? originalTop(els[i]) : originalTop || 0, parseFloat(top))];
+
+        bez[i] = fun(points) ? points(els[i], xy) : points;
         bez[i].push(xy);
         bez[i].unshift([
-          parseInt(getStyle(els[i], 'left'), 10),
-          parseInt(getStyle(els[i], 'top'), 10)
+          parseInt(left, 10),
+          parseInt(top, 10)
         ]);
       }
 
       for (var k in options) {
-        var v = getStyle(els[i], k), unit;
-        if (typeof options[k] == 'string' &&
-            rgbOhex.test(options[k]) &&
+        var v = getStyle(els[i], k), unit,
+            tmp = fun(options[k]) ? options[k](els[i]) : options[k]
+        if (typeof tmp == 'string' &&
+            rgbOhex.test(tmp) &&
             !rgbOhex.test(v)) {
           delete options[k]; // remove key :(
           continue; // cannot animate colors like 'orange' or 'transparent'
                     // only #xxx, #xxxxxx, rgb(n,n,n)
         }
-        begin[i][k] = typeof options[k] == 'string' && rgbOhex.test(options[k]) ?
-          toHex(v).slice(1) : parseFloat(v);
-        end[i][k] = typeof options[k] == 'string' && options[k].charAt(0) == '#' ? toHex(options[k]).slice(1) : by(options[k], parseFloat(v, 10));
+
+        begin[i][k] = typeof tmp == 'string' && rgbOhex.test(tmp) ?
+          toHex(v).slice(1) :
+          parseFloat(v);
+        end[i][k] = typeof tmp == 'string' && tmp.charAt(0) == '#' ?
+          toHex(tmp).slice(1) :
+          by(tmp, parseFloat(v));
         // record original unit
-        typeof options[k] == 'string' && (unit = options[k].match(numUnit)) && (units[i][k] = unit[1]);
+        typeof tmp == 'string' && (unit = tmp.match(numUnit)) && (units[i][k] = unit[1]);
       }
     }
     // ONE TWEEN TO RULE THEM ALL

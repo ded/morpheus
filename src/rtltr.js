@@ -13,7 +13,7 @@
         , 'borderLeftWidth': 1
         , 'border-right-width': 1
         , 'borderRightWidth': 1
-        , 'left' 1
+        , 'left': 1
         , 'right': 1
       }
   context.morpheus = function (elements, options, k, i, v) {

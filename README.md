@@ -70,6 +70,10 @@ API
 
 See the <a href="http://ded.github.com/morpheus/">live examples</a>
 
+Language LTR - RTL support
+---------------
+For those who run web services that support languages spanning from LTR to RTL, you can use the drop-in plugin filed called <code>rtltr.js</code> found in the <code>src</code> directory which will automatically mirror all animations without having to change your implementation. It's pretty rad.
+
 Browser support
 -----------
 Grade A & C Browsers according to Yahoo's [Graded Browser Support](http://developer.yahoo.com/yui/articles/gbs/)

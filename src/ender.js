@@ -1,24 +1,21 @@
 !function ($) {
   $.ender({
     animate: function (options) {
-      morpheus(this, options);
-      return this;
+      return morpheus(this, options);
     },
     fadeIn: function (d, fn) {
-      morpheus(this, {
+      return morpheus(this, {
         duration: d,
         opacity: 1,
         complete: fn
       });
-      return this;
     },
     fadeOut: function (d, fn) {
-      morpheus(this, {
+      return morpheus(this, {
         duration: d,
         opacity: 0,
         complete: fn
       });
-      return this;
     }
   }, true);
   $.ender({

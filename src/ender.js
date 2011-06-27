@@ -1,3 +1,4 @@
+var morpheus = require('morpheus');
 !function ($) {
   $.ender({
     animate: function (options) {

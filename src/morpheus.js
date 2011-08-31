@@ -74,7 +74,7 @@
   }
 
   function fun(f) {
-    return typeof f == 'function';
+    return typeof f == 'function'
   }
 
   /**
@@ -100,7 +100,7 @@
     frame(run)
 
     function run(t) {
-      var delta = t - start;
+      var delta = t - start
       if (delta > time || stop) {
         to = isFinite(to) ? to : 1
         stop ? end && fn(to) : fn(to)
@@ -166,7 +166,7 @@
       // round so we don't get crazy long floats
       v = Math.round(((end[i][k] - begin[i][k]) * pos + begin[i][k]) * 1000) / 1000
       // some css properties don't require a unit (like zIndex, lineHeight, opacity)
-      if (!k in unitless) v += units[i][k] || 'px'
+      if (!(k in unitless)) v += units[i][k] || 'px'
       return v
     }
   }
@@ -236,12 +236,12 @@
           , xy = [by(fun(originalLeft) ? originalLeft(els[i]) : originalLeft || 0, parseFloat(left)),
                   by(fun(originalTop) ? originalTop(els[i]) : originalTop || 0, parseFloat(top))]
 
-        bez[i] = fun(points) ? points(els[i], xy) : points;
-        bez[i].push(xy);
+        bez[i] = fun(points) ? points(els[i], xy) : points
+        bez[i].push(xy)
         bez[i].unshift([
-          parseInt(left, 10),
-          parseInt(top, 10)
-        ]);
+            parseInt(left, 10)
+          , parseInt(top, 10)
+        ])
       }
 
       for (var k in options) {
@@ -257,12 +257,12 @@
 
         begin[i][k] = typeof tmp == 'string' && rgbOhex.test(tmp) ?
           toHex(v).slice(1) :
-          parseFloat(v);
+          parseFloat(v)
         end[i][k] = typeof tmp == 'string' && tmp.charAt(0) == '#' ?
           toHex(tmp).slice(1) :
           by(tmp, parseFloat(v));
         // record original unit
-        typeof tmp == 'string' && (unit = tmp.match(numUnit)) && (units[i][k] = unit[1])
+        (typeof tmp == 'string') && (unit = tmp.match(numUnit)) && (units[i][k] = unit[1])
       }
     }
     // ONE TWEEN TO RULE THEM ALL

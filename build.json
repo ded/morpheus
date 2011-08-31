@@ -1,24 +1,26 @@
 {
   "JAVASCRIPT": {
-    "DIST_DIR": "./",
-    "morpheus": [
-      "./src/copyright.js",
-      "./src/morpheus.js"
+      "DIST_DIR": "./"
+    , "morpheus": [
+        "./src/copyright.js"
+      , "./src/morpheus.js"
     ]
-  },
-  "JSHINT_OPTS": {
-    "boss": true,
-    "forin": false,
-    "curly": false,
-    "debug": false,
-    "devel": false,
-    "evil": false,
-    "regexp": false,
-    "undef": false,
-    "sub": true,
-    "white": true,
-    "indent": 2,
-    "whitespace": true,
-    "asi": true
+  }
+  , "JSHINT_OPTS": {
+      "boss": true
+    , "forin": false
+    , "curly": false
+    , "debug": false
+    , "devel": false
+    , "evil": false
+    , "regexp": false
+    , "undef": false
+    , "sub": true
+    , "white": false
+    , "indent": 2
+    , "whitespace": true
+    , "asi": true
+    , "laxbreak": true
+    , "shadow": true
   }
 }

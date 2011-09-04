@@ -206,7 +206,7 @@
         </script>
       </div>
 
-      <div class="stage" id="last">
+      <div class="stage">
         <h2>stopping animations</h2>
         <div style="width:100px;height:100px;" id="ex7" class="box"></div>
         <script type="text/javascript">
@@ -240,6 +240,25 @@
         </script>
       </div>
 
+      <div class="stage" id="last">
+        <h2>Rotation</h2>
+        <div id="ex8" class="box"></div>
+        <button id="go-ex8">Go</button>
+        <script type="text/javascript">
+          id('go-ex8').onclick = function () {
+            id('go-ex8').disabled = true
+            id('ex8').style.left = '200px'
+            id('ex8').style[morpheus.transform] = 'rotate(200deg)'
+            morpheus(id('ex8'), {
+              left: '400px',
+              transform: 'rotate(10deg)',
+              complete: function () {
+                id('go-ex8').disabled = false
+              }
+            })
+          }
+        </script>
+      </div>
 
     </div>
   </body>

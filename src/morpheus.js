@@ -4,8 +4,12 @@
     , rgbOhex = /^rgb\(|#/
     , relVal = /^([+\-])=([\d\.]+)/
     , numUnit = /^(?:[\+\-]=)?\d+(?:\.\d+)?(%|in|cm|mm|em|ex|pt|pc|px)$/
+    , rotate = /rotate\(((?:[+\-]=)?([\d\.]+))deg\)/
+    , scale = /scale\(((?:[+\-]=)?([\d\.]+))\)/
+    , skew = /skew\(((?:[+\-]=)?([\d\.]+))deg, ?((?:[+\-]=)?([\d\.]+))deg\)/
+    , translate = /translate\(((?:[+\-]=)?([\d\.]+))px, ?((?:[+\-]=)?([\d\.]+))px\)/
       // these elements do not require 'px'
-    , unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1 }
+    , unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1, transform: 1}
       // which property name does this browser use for transform
     , transform = function () {
         var styles = doc.createElement('a').style
@@ -14,6 +18,19 @@
           if (props[i] in styles) return props[i]
         }
       }()
+    , parseTransform = function(style) {
+        var values = {}
+          , m
+        if (m = style.match(rotate)) values.rotate = m[1]
+        if (m = style.match(scale)) values.scale = m[1]
+        if (m = style.match(skew)) {values.skewx = m[1];values.skewy = m[2]}
+        if (m = style.match(translate))  {values.translatex = m[1];values.translatey = m[3]}
+        return values
+      }
+    , formatTransform = function(v, s) {
+        s = "rotate(" + v.rotate + "deg)";
+        return s
+      }
       // does this browser support the opacity property?
     , opasity = function () {
         return typeof doc.createElement('a').style.opacity !== 'undefined'
@@ -21,6 +38,7 @@
       // initial style is determined by the elements themselves
     , getStyle = doc.defaultView && doc.defaultView.getComputedStyle ?
         function (el, property) {
+          property = property == 'transform' ? transform : property
           var value = null
             , computed = doc.defaultView.getComputedStyle(el, '')
           computed && (value = computed[camelize(property)])
@@ -168,7 +186,13 @@
 
   // this retreives the frame value within a sequence
   function getTweenVal(pos, units, begin, end, k, i, v) {
-    if (typeof begin[i][k] == 'string') {
+    if (k == 'transform') {
+      v = {}
+      for(var t in begin[i][k]) {
+        v[t] = Math.round(((end[i][k][t] - begin[i][k][t]) * pos + begin[i][k][t]) * 1000) / 1000
+      }
+      return v
+    } else if (typeof begin[i][k] == 'string') {
       return nextColor(pos, begin[i][k], end[i][k])
     } else {
       // round so we don't get crazy long floats
@@ -263,12 +287,14 @@
                     // only #xxx, #xxxxxx, rgb(n,n,n)
         }
 
-        begin[i][k] = typeof tmp == 'string' && rgbOhex.test(tmp) ?
-          toHex(v).slice(1) :
-          parseFloat(v)
-        end[i][k] = typeof tmp == 'string' && tmp.charAt(0) == '#' ?
-          toHex(tmp).slice(1) :
-          by(tmp, parseFloat(v));
+        begin[i][k] = k == 'transform' ? parseTransform(tmp) :
+          typeof tmp == 'string' && rgbOhex.test(tmp) ?
+            toHex(v).slice(1) :
+            parseFloat(v)
+        end[i][k] = k == 'transform' ? parseTransform(v) :
+          typeof tmp == 'string' && tmp.charAt(0) == '#' ?
+            toHex(tmp).slice(1) :
+            by(tmp, parseFloat(v));
         // record original unit
         (typeof tmp == 'string') && (unit = tmp.match(numUnit)) && (units[i][k] = unit[1])
       }
@@ -285,9 +311,11 @@
         }
         for (var k in options) {
           v = getTweenVal(pos, units, begin, end, k, i)
-          k == 'opacity' && !opasity ?
-            (els[i].style.filter = 'alpha(opacity=' + (v * 100) + ')') :
-            (els[i].style[camelize(k)] = v)
+          k == 'transform' ? 
+            els[i].style[transform] = formatTransform(v) : 
+            k == 'opacity' && !opasity ?
+              (els[i].style.filter = 'alpha(opacity=' + (v * 100) + ')') :
+              (els[i].style[camelize(k)] = v)
         }
       }
     }, complete, ease)
@@ -298,6 +326,7 @@
   morpheus.getStyle = getStyle
   morpheus.bezier = bezier
   morpheus.transform = transform
+  morpheus.parseTransform = parseTransform
 
   if (typeof module !== 'undefined') module.exports = morpheus
   context['morpheus'] = morpheus

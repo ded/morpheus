@@ -241,17 +241,17 @@
       </div>
 
       <div class="stage" id="last">
-        <h2>Rotation</h2>
+        <h2>Transform</h2>
         <div id="ex8" class="box"></div>
         <button id="go-ex8">Go</button>
         <script type="text/javascript">
           id('go-ex8').onclick = function () {
             id('go-ex8').disabled = true
             id('ex8').style.left = '200px'
-            id('ex8').style[morpheus.transform] = 'rotate(200deg)'
+            id('ex8').style[morpheus.transform] = 'rotate(20deg) scale(4) skew(0deg, 30deg) translate(0px,0px)'
             morpheus(id('ex8'), {
               left: '400px',
-              transform: 'rotate(10deg)',
+              transform: 'rotate(+=70deg) scale(-=2) skew(+=0deg) translate(0px,25px)',
               complete: function () {
                 id('go-ex8').disabled = false
               }

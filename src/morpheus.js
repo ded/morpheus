@@ -18,17 +18,21 @@
           if (props[i] in styles) return props[i]
         }
       }()
-    , parseTransform = function(style) {
+    , parseTransform = function(style, base) {
         var values = {}
           , m
-        if (m = style.match(rotate)) values.rotate = m[1]
-        if (m = style.match(scale)) values.scale = m[1]
-        if (m = style.match(skew)) {values.skewx = m[1];values.skewy = m[2]}
-        if (m = style.match(translate))  {values.translatex = m[1];values.translatey = m[3]}
+        if (m = style.match(rotate)) values.rotate = by(m[1],base?base.rotate:null)
+        if (m = style.match(scale)) values.scale = by(m[1],base?base.scale:null)
+        if (m = style.match(skew)) {values.skewx = by(m[1],base?base.skewx:null);values.skewy = by(m[3],base?base.skewy:null)}
+        if (m = style.match(translate)) {values.translatex = by(m[1],base?base.translatex:null);values.translatey = by(m[3],base?base.translatey:null)} 
         return values
       }
-    , formatTransform = function(v, s) {
-        s = "rotate(" + v.rotate + "deg)";
+    , formatTransform = function(v) {
+        var s = ''
+        if ('rotate' in v) s += "rotate(" + v.rotate + "deg) "
+        if ('scale' in v) s += "scale(" + v.scale + ") "
+        if ('translatex' in v) s += "translate(" + v.translatex + "px," + v.translatey + "px) "
+        if ('skewx' in v) s += "skew(" + v.skewx + "deg," + v.skewy + "deg)"
         return s
       }
       // does this browser support the opacity property?
@@ -189,7 +193,7 @@
     if (k == 'transform') {
       v = {}
       for(var t in begin[i][k]) {
-        v[t] = Math.round(((end[i][k][t] - begin[i][k][t]) * pos + begin[i][k][t]) * 1000) / 1000
+        v[t] = (t in end[i][k]) ? Math.round(((end[i][k][t] - begin[i][k][t]) * pos + begin[i][k][t]) * 1000) / 1000 : begin[i][k][t]
       }
       return v
     } else if (typeof begin[i][k] == 'string') {
@@ -287,11 +291,11 @@
                     // only #xxx, #xxxxxx, rgb(n,n,n)
         }
 
-        begin[i][k] = k == 'transform' ? parseTransform(tmp) :
+        begin[i][k] = k == 'transform' ? parseTransform(v) :
           typeof tmp == 'string' && rgbOhex.test(tmp) ?
             toHex(v).slice(1) :
             parseFloat(v)
-        end[i][k] = k == 'transform' ? parseTransform(v) :
+        end[i][k] = k == 'transform' ? parseTransform(tmp,begin[i][k]) :
           typeof tmp == 'string' && tmp.charAt(0) == '#' ?
             toHex(tmp).slice(1) :
             by(tmp, parseFloat(v));

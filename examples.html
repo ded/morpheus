@@ -242,16 +242,34 @@
 
       <div class="stage" id="last">
         <h2>Transform</h2>
-        <div id="ex8" class="box"></div>
+        <div id="ex8-scale" class="box">scale</div>
+        <div id="ex8-rotate" class="box">rotate</div>
+        <div id="ex8-skew" class="box">skew</div>
+        <div id="ex8-translate" class="box">translate</div>
         <button id="go-ex8">Go</button>
+        <button id="reset-ex8">Reset</button>
         <script type="text/javascript">
+          var reset = function () {
+            id('ex8-rotate').style[morpheus.transform] = 'rotate(0deg)'
+            id('ex8-scale').style[morpheus.transform] = 'scale(1)'
+            id('ex8-skew').style[morpheus.transform] = 'skew(0deg, 0deg)'
+            id('ex8-translate').style[morpheus.transform] = 'translate(0px,0px)'
+          }
+          reset()
+          id('reset-ex8').onclick = reset
           id('go-ex8').onclick = function () {
             id('go-ex8').disabled = true
-            id('ex8').style.left = '200px'
-            id('ex8').style[morpheus.transform] = 'rotate(20deg) scale(4) skew(0deg, 30deg) translate(0px,0px)'
-            morpheus(id('ex8'), {
-              left: '400px',
-              transform: 'rotate(+=70deg) scale(-=2) skew(+=0deg) translate(0px,25px)',
+            morpheus(id('ex8-rotate'), {
+              transform: 'rotate(+=70deg)'
+            })
+            morpheus(id('ex8-scale'), {
+              transform: 'scale(+=1)'
+            })
+            morpheus(id('ex8-skew'), {
+              transform: 'skew(10deg,+=10deg)'
+            })
+            morpheus(id('ex8-translate'), {
+              transform: 'translate(+=50px,+=25px)',
               complete: function () {
                 id('go-ex8').disabled = false
               }

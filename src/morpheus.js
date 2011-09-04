@@ -331,6 +331,7 @@
   morpheus.bezier = bezier
   morpheus.transform = transform
   morpheus.parseTransform = parseTransform
+  morpheus.formatTransform = formatTransform
 
   if (typeof module !== 'undefined') module.exports = morpheus
   context['morpheus'] = morpheus

@@ -6,6 +6,14 @@
     , numUnit = /^(?:[\+\-]=)?\d+(?:\.\d+)?(%|in|cm|mm|em|ex|pt|pc|px)$/
       // these elements do not require 'px'
     , unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1 }
+      // which property name does this browser use for transform
+    , transform = function () {
+        var styles = doc.createElement('a').style
+          , props = ['webkitTransform','MozTransform','OTransform','Transform'], i
+        for (i = 0; i < props.length; i++) {
+          if (props[i] in styles) return props[i]
+        }
+      }()
       // does this browser support the opacity property?
     , opasity = function () {
         return typeof doc.createElement('a').style.opacity !== 'undefined'
@@ -289,6 +297,7 @@
   morpheus.tween = tween
   morpheus.getStyle = getStyle
   morpheus.bezier = bezier
+  morpheus.transform = transform
 
   if (typeof module !== 'undefined') module.exports = morpheus
   context['morpheus'] = morpheus

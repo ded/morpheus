@@ -129,7 +129,32 @@
         })
 
       })
-
+      sink('Transform', function(test, ok, before, after) {
+        var el = document.getElementById('test');
+        before(function () {
+          el.style.left = 0;
+          el.style.top = '10px';
+          el.style[morpheus.transform] = 'rotate(10deg)';
+        })
+        test('should accept absolute rotate', 1, function() {
+          morpheus(el, {
+            transform: 'rotate(20deg)',
+            duration: 10,
+            complete: function () {
+              ok(el.style[morpheus.transform] == 'rotate(20deg)', 'el.style[morpheus.transform] == "rotate(20deg)"');
+            }
+          })
+        })
+        test('should accept relative rotate', 1, function() {
+          morpheus(el, {
+            transform: 'rotate(-=20deg)',
+            duration: 10,
+            complete: function () {
+              ok((el.style[morpheus.transform] == 'rotate(-10deg)') ||(el.style[morpheus.transform] == 'rotate(350deg)')  , 'el.style[morpheus.transform] == "rotate(30deg)"');
+            }
+          })
+        })
+      })
       start();
     </script>
 

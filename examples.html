@@ -206,7 +206,7 @@
         </script>
       </div>
 
-      <div class="stage" id="last">
+      <div class="stage">
         <h2>stopping animations</h2>
         <div style="width:100px;height:100px;" id="ex7" class="box"></div>
         <script type="text/javascript">
@@ -240,6 +240,43 @@
         </script>
       </div>
 
+      <div class="stage" id="last">
+        <h2>Transform</h2>
+        <div id="ex8-scale" class="box">scale</div>
+        <div id="ex8-rotate" class="box">rotate</div>
+        <div id="ex8-skew" class="box">skew</div>
+        <div id="ex8-translate" class="box">translate</div>
+        <button id="go-ex8">Go</button>
+        <button id="reset-ex8">Reset</button>
+        <script type="text/javascript">
+          var reset = function () {
+            id('ex8-rotate').style[morpheus.transform] = 'rotate(0deg)'
+            id('ex8-scale').style[morpheus.transform] = 'scale(1)'
+            id('ex8-skew').style[morpheus.transform] = 'skew(0deg, 0deg)'
+            id('ex8-translate').style[morpheus.transform] = 'translate(0px,0px)'
+          }
+          reset()
+          id('reset-ex8').onclick = reset
+          id('go-ex8').onclick = function () {
+            id('go-ex8').disabled = true
+            morpheus(id('ex8-rotate'), {
+              transform: 'rotate(+=70deg)'
+            })
+            morpheus(id('ex8-scale'), {
+              transform: 'scale(+=1)'
+            })
+            morpheus(id('ex8-skew'), {
+              transform: 'skew(10deg,+=10deg)'
+            })
+            morpheus(id('ex8-translate'), {
+              transform: 'translate(+=50px,+=25px)',
+              complete: function () {
+                id('go-ex8').disabled = false
+              }
+            })
+          }
+        </script>
+      </div>
 
     </div>
   </body>

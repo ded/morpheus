@@ -130,6 +130,34 @@
 
       })
 
+      var transformTest = function(test, ok, title, start, transform, verify) {
+        verify = typeof verify == 'string' ? [verify] : verify
+        var el = document.getElementById('test');
+        test(title, verify.length, function() {
+          el.style[morpheus.transform] = start
+          morpheus(el, {
+            transform: transform,
+            duration: 10,
+            complete: function () {
+              var v = morpheus.parseTransform(el.style[morpheus.transform]);
+              for(var i=0;i<verify.length;i++) {
+                ok(eval(verify[i]), verify[i]);
+              }
+            }
+          })
+        })
+      }
+
+      sink('Transform', function(test, ok, before, after) {
+        transformTest(test,ok,'should accept absolute rotate','rotate(30deg)','rotate(40deg)','v.rotate == 40')
+        transformTest(test,ok,'should accept relative rotate','rotate(10deg)','rotate(-=20deg)','v.rotate == -10 || v.rotate == 350')
+        transformTest(test,ok,'should accept absolute scale','scale(1)','scale(3)','v.scale == 3')
+        transformTest(test,ok,'should accept relative scale','scale(1)','scale(+=3)','v.scale == 4')
+        transformTest(test,ok,'should accept absolute skew','skew(10deg,10deg)','skew(30deg,90deg)',['v.skewx == 30','v.skewy == 90'])
+        transformTest(test,ok,'should accept relative skew','skew(10deg,10deg)','skew(+=30deg,-=6deg)',['v.skewx == 40','v.skewy == 4'])
+        transformTest(test,ok,'should accept absolute translate','translate(-10px,0px)','translate(30px,99px)',['v.translatex == 30','v.translatey == 99'])
+        transformTest(test,ok,'should accept relative translate','translate(100px,100px)','translate(+=30px,-=106px)',['v.translatex == 130','v.translatey == -6'])
+      })
       start();
     </script>
 

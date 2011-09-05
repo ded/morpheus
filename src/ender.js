@@ -14,7 +14,7 @@ var morpheus = require('morpheus')
   , fadeOut: function (d, fn) {
       return morpheus(this, {
           duration: d
-        , opacity: 0,
+        , opacity: 0
         , complete: fn
       })
     }

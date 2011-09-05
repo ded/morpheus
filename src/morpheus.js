@@ -11,6 +11,7 @@
       // these elements do not require 'px'
     , unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1, transform: 1}
       // which property name does this browser use for transform
+
     , transform = function () {
         var styles = doc.createElement('a').style
           , props = ['webkitTransform','MozTransform','OTransform','msTransform','Transform'], i
@@ -18,27 +19,12 @@
           if (props[i] in styles) return props[i]
         }
       }()
-    , parseTransform = function(style, base) {
-        var values = {}
-          , m
-        if (m = style.match(rotate)) values.rotate = by(m[1],base?base.rotate:null)
-        if (m = style.match(scale)) values.scale = by(m[1],base?base.scale:null)
-        if (m = style.match(skew)) {values.skewx = by(m[1],base?base.skewx:null);values.skewy = by(m[3],base?base.skewy:null)}
-        if (m = style.match(translate)) {values.translatex = by(m[1],base?base.translatex:null);values.translatey = by(m[3],base?base.translatey:null)} 
-        return values
-      }
-    , formatTransform = function(v) {
-        var s = ''
-        if ('rotate' in v) s += "rotate(" + v.rotate + "deg) "
-        if ('scale' in v) s += "scale(" + v.scale + ") "
-        if ('translatex' in v) s += "translate(" + v.translatex + "px," + v.translatey + "px) "
-        if ('skewx' in v) s += "skew(" + v.skewx + "deg," + v.skewy + "deg)"
-        return s
-      }
+
       // does this browser support the opacity property?
     , opasity = function () {
         return typeof doc.createElement('a').style.opacity !== 'undefined'
       }()
+
       // initial style is determined by the elements themselves
     , getStyle = doc.defaultView && doc.defaultView.getComputedStyle ?
         function (el, property) {
@@ -84,6 +70,24 @@
             }, 10)
           }
       }()
+
+  function parseTransform(style, base) {
+    var values = {}, m
+    if (m = style.match(rotate)) values.rotate = by(m[1], base ? base.rotate : null)
+    if (m = style.match(scale)) values.scale = by(m[1], base ? base.scale : null)
+    if (m = style.match(skew)) {values.skewx = by(m[1], base ? base.skewx : null); values.skewy = by(m[3], base ? base.skewy : null)}
+    if (m = style.match(translate)) {values.translatex = by(m[1], base ? base.translatex : null); values.translatey = by(m[3], base ? base.translatey : null)}
+    return values
+  }
+
+  function formatTransform(v) {
+    var s = ''
+    if ('rotate' in v) s += 'rotate(' + v.rotate + 'deg) '
+    if ('scale' in v) s += 'scale(' + v.scale + ') '
+    if ('translatex' in v) s += 'translate(' + v.translatex + 'px,' + v.translatey + 'px) '
+    if ('skewx' in v) s += 'skew(' + v.skewx + 'deg,' + v.skewy + 'deg)'
+    return s
+  }
 
   function rgb(r, g, b) {
     return '#' + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)
@@ -315,8 +319,8 @@
         }
         for (var k in options) {
           v = getTweenVal(pos, units, begin, end, k, i)
-          k == 'transform' ? 
-            els[i].style[transform] = formatTransform(v) : 
+          k == 'transform' ?
+            els[i].style[transform] = formatTransform(v) :
             k == 'opacity' && !opasity ?
               (els[i].style.filter = 'alpha(opacity=' + (v * 100) + ')') :
               (els[i].style[camelize(k)] = v)
@@ -333,7 +337,6 @@
   morpheus.parseTransform = parseTransform
   morpheus.formatTransform = formatTransform
 
-  if (typeof module !== 'undefined') module.exports = morpheus
-  context['morpheus'] = morpheus
+  if (typeof module !== 'undefined') module.exports = morpheus; else context['morpheus'] = morpheus
 
 }(this, document, window)

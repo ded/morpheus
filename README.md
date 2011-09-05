@@ -128,12 +128,12 @@ If you're considering animating by a CSS unit of measurement like <code>em</code
 ``` js
 $('div.intro')
   .css({
-    fontSize: '2em',
-    width: '50%'
+      fontSize: '2em'
+    , width: '50%'
   })
   .animate({
-    fontSize: '+=1.5em',
-    width: '100%'
+      fontSize: '+=1.5em'
+    , width: '100%'
   })
 ```
 
@@ -141,12 +141,24 @@ $('div.intro')
 Transforms can be animated in browsers that support them (IE9, FF, Chrome, Safari, Opera). <code>morpheus.transform</code> provides a shortcut to the correct style property for the browser (webkitTransform, MozTransform, etc). Like animating on units or color, you must set the property ahead of time before animating:
 
 ``` js
-element.style[morpheus.transform] = 'rotate(30deg) scale(1)';
+element.style[morpheus.transform] = 'rotate(30deg) scale(1)'
 morpheus(element, {
   transform: 'rotate(0deg) scale(+=3)'
-});
+})
 ```
 
 Morpheus (c) Dustin Diaz 2011 - License MIT
+
+## Contributors
+
+If you're looking to contribute. Add your changes to `src/morpheus.js` Then run the following
+
+    $ # if you don't have smoosh
+    $ npm install smoosh -g
+    $ # then run tests
+    $ git submodule update --init
+    $ open tests/tests.html
+
+If all is good. Then run `make` and be sure make sure your code passes the linter
 
 **Happy Morphing!**

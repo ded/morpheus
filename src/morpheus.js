@@ -13,7 +13,7 @@
       // which property name does this browser use for transform
     , transform = function () {
         var styles = doc.createElement('a').style
-          , props = ['webkitTransform','MozTransform','OTransform','Transform'], i
+          , props = ['webkitTransform','MozTransform','OTransform','msTransform','Transform'], i
         for (i = 0; i < props.length; i++) {
           if (props[i] in styles) return props[i]
         }

@@ -129,11 +129,9 @@
         })
 
       })
-      sink('Transform', function(test, ok, before, after) {
+      sink('Transform - rotate', function(test, ok, before, after) {
         var el = document.getElementById('test');
         before(function () {
-          el.style.left = 0;
-          el.style.top = '10px';
           el.style[morpheus.transform] = 'rotate(10deg)';
         })
         test('should accept absolute rotate', 1, function() {
@@ -150,7 +148,31 @@
             transform: 'rotate(-=20deg)',
             duration: 10,
             complete: function () {
-              ok((el.style[morpheus.transform] == 'rotate(-10deg)') ||(el.style[morpheus.transform] == 'rotate(350deg)')  , 'el.style[morpheus.transform] == "rotate(30deg)"');
+              ok((el.style[morpheus.transform] == 'rotate(-10deg)') ||(el.style[morpheus.transform] == 'rotate(350deg)')  , 'el.style[morpheus.transform] == "rotate(-10deg)" || "rotate(350deg)"');
+            }
+          })
+        })
+      })
+      sink('Transform - scale', function(test, ok, before, after) {
+        var el = document.getElementById('test');
+        before(function () {
+          el.style[morpheus.transform] = 'scale(1)';
+        })
+        test('should accept absolute scale', 1, function() {
+          morpheus(el, {
+            transform: 'scale(3)',
+            duration: 10,
+            complete: function () {
+              ok(el.style[morpheus.transform] == 'scale(3)', 'el.style[morpheus.transform] == "scale(3)"');
+            }
+          })
+        })
+        test('should accept relative scale', 1, function() {
+          morpheus(el, {
+            transform: 'scale(+=2)',
+            duration: 10,
+            complete: function () {
+              ok((el.style[morpheus.transform] == 'scale(3)'), 'el.style[morpheus.transform] == "rotate(-10deg)" || "rotate(350deg)"');
             }
           })
         })

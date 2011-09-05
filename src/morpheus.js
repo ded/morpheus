@@ -4,10 +4,10 @@
     , rgbOhex = /^rgb\(|#/
     , relVal = /^([+\-])=([\d\.]+)/
     , numUnit = /^(?:[\+\-]=)?\d+(?:\.\d+)?(%|in|cm|mm|em|ex|pt|pc|px)$/
-    , rotate = /rotate\(((?:[+\-]=)?([\d\.]+))deg\)/
+    , rotate = /rotate\(((?:[+\-]=)?([\-\d\.]+))deg\)/
     , scale = /scale\(((?:[+\-]=)?([\d\.]+))\)/
-    , skew = /skew\(((?:[+\-]=)?([\d\.]+))deg, ?((?:[+\-]=)?([\d\.]+))deg\)/
-    , translate = /translate\(((?:[+\-]=)?([\d\.]+))px, ?((?:[+\-]=)?([\d\.]+))px\)/
+    , skew = /skew\(((?:[+\-]=)?([\-\d\.]+))deg, ?((?:[+\-]=)?([\-\d\.]+))deg\)/
+    , translate = /translate\(((?:[+\-]=)?([\-\d\.]+))px, ?((?:[+\-]=)?([\-\d\.]+))px\)/
       // these elements do not require 'px'
     , unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1, transform: 1}
       // which property name does this browser use for transform

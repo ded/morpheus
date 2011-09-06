@@ -98,23 +98,31 @@
           easing: easings.bouncePast
         })
 
-        function loop() {
-          $('#bez').animate({
-            duration: 3000,
-            left: 200,
-            top: 200,
-            bezier: [[300, 100], [400, 200], [300, 300]],
-            easing: function (t) {
-              return t;
-            },
-            complete: loop,
-            easing: function (t) {
-              return t
-            }
-          })
-        }
-        loop();
 
+        !function () {
+          if ($.browser.ie && $.browser.version < 9) {
+            return
+          }
+          function loop() {
+            $('#bez').css({
+              backgroundColor: '#f0f'
+            })[0].style[require('morpheus').transform] = 'scale(1)'
+
+            $('#bez').animate({
+              duration: 3000,
+              left: 200,
+              top: 200,
+              backgroundColor: '#00f',
+              transform: 'scale(5)',
+              bezier: [[300, 100], [400, 200], [300, 300]],
+              complete: loop,
+              easing: function (t) {
+                return t
+              }
+            })
+          }
+          loop()
+        }()
 
       })
     </script>

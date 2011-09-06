@@ -137,6 +137,18 @@ $('div.intro')
   })
 ```
 
+You also get two other fancy fading hooks
+
+``` js
+$('p').fadeIn(250, function () {
+  console.log('complete')
+})
+
+$('p').fadeOut(500, function () {
+  console.log('complete')
+})
+```
+
 <h3>Transforms</h3>
 Transforms can be animated in browsers that support them (IE9, FF, Chrome, Safari, Opera). <code>morpheus.transform</code> provides a shortcut to the correct style property for the browser (webkitTransform, MozTransform, etc). Like animating on units or color, you must set the property ahead of time before animating:
 
@@ -146,8 +158,6 @@ morpheus(element, {
   transform: 'rotate(0deg) scale(+=3)'
 })
 ```
-
-Morpheus (c) Dustin Diaz 2011 - License MIT
 
 ## Contributors
 
@@ -159,6 +169,8 @@ If you're looking to contribute. Add your changes to `src/morpheus.js` Then run 
     $ git submodule update --init
     $ open tests/tests.html
 
-If all is good. Then run `make` and be sure make sure your code passes the linter
+If all is good. Then run `make` to be sure your code passes the JSHint linter
+
+Morpheus (c) Dustin Diaz 2011 - License MIT
 
 **Happy Morphing!**

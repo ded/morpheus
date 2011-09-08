@@ -214,8 +214,7 @@
   // support for relative movement via '+=n' or '-=n'
   function by(val, start, m, r, i) {
     return (m = relVal.exec(val)) ?
-      (i = parseFloat(m[2])) && (r = (start + i)) && m[1] == '+' ?
-      r : start - i :
+      (i = parseFloat(m[2])) && (start + (m[1] == '+' ? 1 : -1) * i) :
       parseFloat(val)
   }
 

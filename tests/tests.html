@@ -76,6 +76,17 @@
           })
         })
 
+        test('should move relative to negative numbers', 1, function () {
+          el.style.top = '-10px';
+          morpheus(el, {
+            top: '+=10px',
+            duration: 10,
+            complete: function () {
+              ok(el.style.top == '0px', '-10px +=10px == "0px"')
+            }
+          })
+        })
+
       });
 
       sink('Colors', function (test, ok) {

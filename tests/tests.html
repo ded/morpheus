@@ -14,8 +14,8 @@
         position: relative;
       }
     </style>
-    <link rel="stylesheet" href="../support/sink/src/sink.css" type="text/css">
-    <script src="../support/sink/src/sink.js"></script>
+    <link rel="stylesheet" href="../node_modules/sink-test/src/sink.css" type="text/css">
+    <script src="../node_modules/sink-test/src/sink.js"></script>
     <script src="../src/morpheus.js" type="text/javascript"></script>
   </head>
   <body>
@@ -29,15 +29,15 @@
       sink('Integers', function(test, ok, before, after) {
         var el = document.getElementById('test');
         before(function () {
-          el.style.left = 0;
-          el.style.top = '10px';
+          el.style.left = 0
+          el.style.top = '10px'
         })
         test('should accept non-pixel value', 1, function() {
           morpheus(el, {
             left: 5,
             duration: 10,
             complete: function () {
-              ok(el.style.left == '5px', 'el.style.left == "5px"');
+              ok(el.style.left == '5px', 'el.style.left == "5px"')
             }
           })
         })
@@ -47,7 +47,7 @@
             left: '10px',
             duration: 10,
             complete: function () {
-              ok(el.style.left == '10px', 'el.style.left == "10px"');
+              ok(el.style.left == '10px', 'el.style.left == "10px"')
             }
           })
         })
@@ -58,8 +58,8 @@
             left: '+=10',
             duration: 10,
             complete: function () {
-              ok(el.style.top == '20px', '10px +=10px == "20px"');
-              ok(el.style.left == '10px', '0 +=10 == "10px"');
+              ok(el.style.top == '20px', '10px +=10px == "20px"')
+              ok(el.style.left == '10px', '0 +=10 == "10px"')
             }
           })
         })
@@ -70,8 +70,8 @@
             left: '-=10',
             duration: 10,
             complete: function () {
-              ok(el.style.top == '0px', '10px -=10px == "0px"');
-              ok(el.style.left == '-10px', '0 -=10 == "-10px"');
+              ok(el.style.top == '0px', '10px -=10px == "0px"')
+              ok(el.style.left == '-10px', '0 -=10 == "-10px"')
             }
           })
         })
@@ -91,14 +91,14 @@
 
       sink('Colors', function (test, ok) {
 
-        var el = document.getElementById('test');
+        var el = document.getElementById('test')
 
         test('should accept long hex', 1, function () {
           morpheus(el, {
             color: '#ff0000',
             duration: 10,
             complete: function () {
-              ok(el.style.color == 'rgb(255, 0, 0)', 'color is rgb(255, 0, 0)');
+              ok(el.style.color == 'rgb(255, 0, 0)', 'color is rgb(255, 0, 0)')
             }
           })
         })
@@ -108,7 +108,7 @@
             color: '#f00',
             duration: 10,
             complete: function () {
-              ok(el.style.color == 'rgb(255, 0, 0)', 'color is rgb(255, 0, 0)');
+              ok(el.style.color == 'rgb(255, 0, 0)', 'color is rgb(255, 0, 0)')
             }
           })
         })
@@ -124,7 +124,7 @@
             'font-size': 30,
             duration: 10,
             complete: function () {
-              ok(el.style.fontSize == '30px', 'el.style.fontSize == "30px"');
+              ok(el.style.fontSize == '30px', 'el.style.fontSize == "30px"')
             }
           })
         })
@@ -134,7 +134,7 @@
             fontSize: 50,
             duration: 10,
             complete: function () {
-              ok(el.style.fontSize == '50px', 'el.style.fontSize == "50px"');
+              ok(el.style.fontSize == '50px', 'el.style.fontSize == "50px"')
             }
           })
         })
@@ -143,16 +143,16 @@
 
       var transformTest = function(test, ok, title, start, transform, verify) {
         verify = typeof verify == 'string' ? [verify] : verify
-        var el = document.getElementById('test');
+        var el = document.getElementById('test')
         test(title, verify.length, function() {
           el.style[morpheus.transform] = start
           morpheus(el, {
             transform: transform,
             duration: 10,
             complete: function () {
-              var v = morpheus.parseTransform(el.style[morpheus.transform]);
-              for(var i=0;i<verify.length;i++) {
-                ok(eval(verify[i]), verify[i]);
+              var v = morpheus.parseTransform(el.style[morpheus.transform])
+              for (var i = 0; i < verify.length; i++) {
+                ok(eval(verify[i]), verify[i])
               }
             }
           })

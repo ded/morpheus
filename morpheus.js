@@ -3,9 +3,16 @@
   * https://github.com/ded/morpheus - (c) Dustin Diaz 2011
   * License MIT
   */
-!function (context, doc, win) {
+!function (name, definition) {
+  if (typeof define == 'function') define(definition)
+  else if (typeof module != 'undefined') module.exports = definition()
+  else this[name] = definition()
+}('morpheus', function () {
 
-  var html = doc.documentElement
+  var context = this
+    , doc = document
+    , win = window
+    , html = doc.documentElement
     , rgbOhex = /^rgb\(|#/
     , relVal = /^([+\-])=([\d\.]+)/
     , numUnit = /^(?:[\+\-]=)?\d+(?:\.\d+)?(%|in|cm|mm|em|ex|pt|pc|px)$/
@@ -15,8 +22,8 @@
     , translate = /translate\(((?:[+\-]=)?([\-\d\.]+))px, ?((?:[+\-]=)?([\-\d\.]+))px\)/
       // these elements do not require 'px'
     , unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1, transform: 1}
-      // which property name does this browser use for transform
 
+      // which property name does this browser use for transform
     , transform = function () {
         var styles = doc.createElement('a').style
           , props = ['webkitTransform','MozTransform','OTransform','msTransform','Transform'], i
@@ -341,6 +348,6 @@
   morpheus.parseTransform = parseTransform
   morpheus.formatTransform = formatTransform
 
-  if (typeof module !== 'undefined') module.exports = morpheus; else context['morpheus'] = morpheus
+  return morpheus
 
-}(this, document, window)
+})

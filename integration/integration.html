@@ -63,10 +63,10 @@
         -webkit-border-radius: 10px;
       }
     </style>
-    <script src="ender.js" type="text/javascript"></script>
-    <script src="../src/morpheus.js" type="text/javascript"></script>
-    <script src="../src/ender.js" type="text/javascript"></script>
-    <script src="../src/easings.js" type="text/javascript"></script>
+    <script src="ender.js"></script>
+    <script src="../src/morpheus.js"></script>
+    <script src="../src/ender.js"></script>
+    <script src="../src/easings.js"></script>
     <script type="text/javascript">
       $.domReady(function () {
         $('#left .wha').animate({
@@ -100,9 +100,8 @@
 
 
         !function () {
-          if ($.browser.ie && $.browser.version < 9) {
-            return
-          }
+          if ($.browser.ie && $.browser.version < 9) return
+
           function loop() {
             $('#bez').css({
               backgroundColor: '#f0f'

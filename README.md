@@ -11,21 +11,22 @@ It looks like this:
 ``` js
 morpheus(elements, {
   // CSS
-  left: -50,
-  top: 100,
-  width: '+=50',
-  height: '-=50px',
-  fontSize: '30px',
-  color: '#f00',
-  "background-color": '#f00',
+    left: -50
+  , top: 100
+  , width: '+=50'
+  , height: '-=50px'
+  , fontSize: '30px'
+  , color: '#f00'
+  , transform: 'rotate(30deg) scale(+=3)'
+  , "background-color": '#f00'
 
-  // API
-  duration: 500,
-  easing: easings.easeOut,
-  bezier: [[100, 200], [200, 100]],
-  complete: function () {
-    console.log('done')
-  }
+    // API
+    duration: 500
+  , easing: easings.easeOut
+  , bezier: [[100, 200], [200, 100]]
+  , complete: function () {
+      console.log('done')
+    }
 })
 ```
 
@@ -76,7 +77,7 @@ For those who run web services that support languages spanning from LTR to RTL, 
 
 Browser support
 -----------
-Grade A & C Browsers according to Yahoo's [Graded Browser Support](http://developer.yahoo.com/yui/articles/gbs/)
+Grade A & C Browsers according to Yahoo's [Graded Browser Support](http://developer.yahoo.com/yui/articles/gbs/). CSS3 transforms are only supported in browsers that support the transform specification.
 
 Ender integration
 --------
@@ -94,9 +95,9 @@ Write code like a boss:
 $('#content .boosh').animate({
   left: 911,
   complete: function () {
-    console.log('boosh');
+    console.log('boosh')
   }
-});
+})
 ```
 
 Usage Notes
@@ -159,17 +160,28 @@ morpheus(element, {
 })
 ```
 
-## Contributors
+AMD Support
+----------
+
+``` js
+require('morpheus.js', function (morpheus) {
+  morpheus(elements, config)
+})
+
+or as usual with ender
+
+var morpheus = require('morpheus')
+
+```
+
+## Developers
 
 If you're looking to contribute. Add your changes to `src/morpheus.js` Then run the following
 
-    $ # if you don't have smoosh
     $ npm install smoosh -g
-    $ # then run tests
-    $ git submodule update --init
+    $ npm install --dev
+    $ make
     $ open tests/tests.html
-
-If all is good. Then run `make` to be sure your code passes the JSHint linter
 
 Morpheus (c) Dustin Diaz 2011 - License MIT
 

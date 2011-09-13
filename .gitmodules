@@ -1,6 +1,0 @@
-[submodule "support/sink"]
-	path = support/sink
-	url = git://github.com/ded/sink-test.git
-[submodule "support/bowser"]
-	path = support/bowser
-	url = git://github.com/ded/bowser.git

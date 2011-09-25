@@ -21,7 +21,7 @@ morpheus(elements, {
   , "background-color": '#f00'
 
     // API
-    duration: 500
+  , duration: 500
   , easing: easings.easeOut
   , bezier: [[100, 200], [200, 100]]
   , complete: function () {

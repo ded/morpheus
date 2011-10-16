@@ -134,7 +134,7 @@
     * @returns method to stop the animation
     */
   function tween(duration, fn, done, ease, from, to) {
-    ease = ease || function (t) {
+    ease = fun(ease) ? ease : morpheus.easings[ease] || function (t) {
       // default to a pleasant-to-the-eye easeOut (like native animations)
       return Math.sin(t * Math.PI / 2)
     }
@@ -347,6 +347,7 @@
   morpheus.transform = transform
   morpheus.parseTransform = parseTransform
   morpheus.formatTransform = formatTransform
+  morpheus.easings = {}
 
   return morpheus
 

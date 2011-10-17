@@ -9,7 +9,7 @@ Morpheus lets you "tween anything" in parallel on multiple elements; from colors
 It looks like this:
 
 ``` js
-morpheus(elements, {
+var anim = morpheus(elements, {
   // CSS
     left: -50
   , top: 100
@@ -28,6 +28,12 @@ morpheus(elements, {
       console.log('done')
     }
 })
+
+// stop an animation
+anim.stop()
+
+// jump to the end of an animation and run 'complete' callback
+anim.stop(true)
 ```
 
 General Tweening
@@ -66,6 +72,7 @@ API
   *  - complete: a callback method for when all elements have finished
   *  - bezier: array of arrays containing x|y coordinates that define the bezier points. defaults to none
   *     - this may also be a function that receives element to be animated. it must return a value
+  * @return animation instance
   */
 ```
 

@@ -32,7 +32,7 @@
           el.style.left = 0
           el.style.top = '10px'
         })
-        test('should accept non-pixel value', 1, function() {
+        test('should accept raw number value sans-unit', 1, function () {
           morpheus(el, {
             left: 5,
             duration: 10,
@@ -160,16 +160,46 @@
       }
 
       sink('Transform', function(test, ok, before, after) {
-        transformTest(test,ok,'should accept absolute rotate','rotate(30deg)','rotate(40deg)','v.rotate == 40')
-        transformTest(test,ok,'should accept relative rotate','rotate(10deg)','rotate(-=20deg)','v.rotate == -10 || v.rotate == 350')
-        transformTest(test,ok,'should accept absolute scale','scale(1)','scale(3)','v.scale == 3')
-        transformTest(test,ok,'should accept relative scale','scale(1)','scale(+=3)','v.scale == 4')
-        transformTest(test,ok,'should accept absolute skew','skew(10deg,10deg)','skew(30deg,90deg)',['v.skewx == 30','v.skewy == 90'])
-        transformTest(test,ok,'should accept relative skew','skew(10deg,10deg)','skew(+=30deg,-=6deg)',['v.skewx == 40','v.skewy == 4'])
-        transformTest(test,ok,'should accept absolute translate','translate(-10px,0px)','translate(30px,99px)',['v.translatex == 30','v.translatey == 99'])
-        transformTest(test,ok,'should accept relative translate','translate(100px,100px)','translate(+=30px,-=106px)',['v.translatex == 130','v.translatey == -6'])
+        transformTest(test, ok, 'should accept absolute rotate','rotate(30deg)','rotate(40deg)','v.rotate == 40')
+        transformTest(test, ok, 'should accept relative rotate','rotate(10deg)','rotate(-=20deg)','v.rotate == -10 || v.rotate == 350')
+        transformTest(test, ok, 'should accept absolute scale','scale(1)','scale(3)','v.scale == 3')
+        transformTest(test, ok, 'should accept relative scale','scale(1)','scale(+=3)','v.scale == 4')
+        transformTest(test, ok, 'should accept absolute skew','skew(10deg,10deg)','skew(30deg,90deg)',['v.skewx == 30','v.skewy == 90'])
+        transformTest(test, ok, 'should accept relative skew','skew(10deg,10deg)','skew(+=30deg,-=6deg)',['v.skewx == 40','v.skewy == 4'])
+        transformTest(test, ok, 'should accept absolute translate','translate(-10px,0px)','translate(30px,99px)',['v.translatex == 30','v.translatey == 99'])
+        transformTest(test, ok, 'should accept relative translate','translate(100px,100px)','translate(+=30px,-=106px)',['v.translatex == 130','v.translatey == -6'])
       })
-      start();
+
+      sink('Out', function (test, ok) {
+        var el = document.getElementById('test')
+        test('stop() method should stop an animation and run callback', 1, function () {
+          var inst = morpheus(el, {
+              duration: 10000
+            , left: 100
+            , complete: function () {
+                ok(false, 'callback should not be called')
+              }
+          })
+          inst.stop()
+          setTimeout(function() {
+            ok(parseFloat(el.style.left) < 100, 'did not animate to full extent')
+          }, 10)
+
+        })
+        test('stop(jump) should stop animation, jump to end, and *not* fire callback', 2, function () {
+          var inst = morpheus(el, {
+              duration: 10000
+            , left: 100
+            , complete: function () {
+                ok(true, 'callback should have been called')
+                ok(parseFloat(el.style.left) == 100, 'jumped to end of animation')
+              }
+          })
+          inst.stop(true)
+        })
+      })
+
+      start()
     </script>
 
   </body>

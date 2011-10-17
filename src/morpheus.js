@@ -158,6 +158,7 @@
       stop: function (jump) {
         stop = 1
         end = jump // jump to end of animation?
+        if (!jump) done = null // remove callback if not jumping to end
       }
     }
   }

@@ -139,6 +139,7 @@
       return Math.sin(t * Math.PI / 2)
     }
     var time = duration || 1000
+      , self = this
       , diff = to - from
       , start = +new Date()
       , stop = 0
@@ -150,7 +151,7 @@
       if (delta > time || stop) {
         to = isFinite(to) ? to : 1
         stop ? end && fn(to) : fn(to)
-        return done && done()
+        return done && done.apply(self)
       }
       // if you don't specify a 'to' you can use tween as a generic delta tweener
       // cool, eh?
@@ -320,7 +321,7 @@
       }
     }
     // ONE TWEEN TO RULE THEM ALL
-    return tween(duration, function (pos, v, xy) {
+    return tween.apply(els, [duration, function (pos, v, xy) {
       // normally not a fan of optimizing for() loops, but we want something
       // fast for animating
       for (i = els.length; i--;) {
@@ -338,7 +339,7 @@
               (els[i].style[camelize(k)] = v)
         }
       }
-    }, complete, ease)
+    }, complete, ease])
   }
 
   // expose useful methods

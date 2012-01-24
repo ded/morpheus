@@ -38,7 +38,9 @@
           property = property == 'transform' ? transform : property
           var value = null
             , computed = doc.defaultView.getComputedStyle(el, '')
-          computed && (value = computed[camelize(property)])
+          property == 'scrollTop'
+            ? value = el.scrollTop
+            : computed && (value = computed[camelize(property)])
           return el.style[property] || value
         } : html.currentStyle ?
 
@@ -327,11 +329,15 @@
         }
         for (var k in options) {
           v = getTweenVal(pos, units, begin, end, k, i)
-          k == 'transform' ?
-            els[i].style[transform] = formatTransform(v) :
-            k == 'opacity' && !opasity ?
-              (els[i].style.filter = 'alpha(opacity=' + (v * 100) + ')') :
-              (els[i].style[camelize(k)] = v)
+          if (k=='scrollTop') {
+            window.scroll(0, parseInt(v))
+          } else {
+            k == 'transform' ?
+              els[i].style[transform] = formatTransform(v) :
+              k == 'opacity' && !opasity ?
+                (els[i].style.filter = 'alpha(opacity=' + (v * 100) + ')') :
+                (els[i].style[camelize(k)] = v)
+          }
         }
       }
     }, complete, ease])
@@ -349,3 +355,4 @@
   return morpheus
 
 })
+

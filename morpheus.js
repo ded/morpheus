@@ -92,12 +92,11 @@
   }
 
   function render(t) {
-    var i, found, count = children.length
+    var i, count = children.length
     for (i = count; i--;) {
       children[i](t)
-      found = true
     }
-    found && frame(render)
+    children.length && frame(render)
   }
 
   function live(f) {

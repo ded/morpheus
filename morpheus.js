@@ -195,7 +195,7 @@
 
   // this gets you the next hex in line according to a 'position'
   function nextColor(pos, start, finish) {
-    var r = [], i, e
+    var r = [], i, e, from, to
     for (i = 0; i < 6; i++) {
       from = Math.min(15, parseInt(start.charAt(i),  16))
       to   = Math.min(15, parseInt(finish.charAt(i), 16))

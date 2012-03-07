@@ -74,9 +74,37 @@
           function (callback) {
             win.setTimeout(function () {
               callback(+new Date())
-            }, 10)
+            }, 11) // these go to eleven
           }
       }()
+    , has = function (array, elem, i) {
+        if (Array.prototype.indexOf) return array.indexOf(elem)
+        for (i=0; i<array.length; ++i) {
+          if (array[i] === elem) return i
+        }
+      }
+    , children = []
+    , rendering = false
+    , render = function (t) {
+        var i, found
+        for (i = children.length; i--;) {
+          children[i](t);
+          found = true;
+        }
+        rendering = found && frame(render)
+      }
+    , live = function (f) {
+        children.push(f)
+        if (!rendering) render()
+      }
+    , die = function (f) {
+        var i, rest, index = has(children, f)
+        if (index >= 0) {
+          rest = children.slice(index+1)
+          children.length = index
+          children.push.apply(children, rest)
+        }
+      }
 
   function parseTransform(style, base) {
     var values = {}, m
@@ -139,13 +167,14 @@
       , start = +new Date()
       , stop = 0
       , end = 0
-    frame(run)
+    live(run)
 
     function run(t) {
       var delta = t - start
       if (delta > time || stop) {
         to = isFinite(to) ? to : 1
         stop ? end && fn(to) : fn(to)
+        die(run)
         return done && done.apply(self)
       }
       // if you don't specify a 'to' you can use tween as a generic delta tweener
@@ -153,7 +182,6 @@
       isFinite(to) ?
         fn((diff * ease(delta / time)) + from) :
         fn(ease(delta / time))
-      frame(run)
     }
     return {
       stop: function (jump) {

@@ -78,7 +78,6 @@
           }
       }()
     , children = []
-    , rendering = false
 
   function has(array, elem, i) {
     if (Array.prototype.indexOf) return array.indexOf(elem)
@@ -93,12 +92,11 @@
       children[i](t)
       found = true
     }
-    rendering = found && frame(render)
+    found && frame(render)
   }
 
   function live(f) {
-    children.push(f)
-    if (!rendering) render()
+    if (children.push(f) === 1) render()
   }
 
   function die(f) {

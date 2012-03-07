@@ -77,34 +77,38 @@
             }, 11) // these go to eleven
           }
       }()
-    , has = function (array, elem, i) {
-        if (Array.prototype.indexOf) return array.indexOf(elem)
-        for (i=0; i<array.length; ++i) {
-          if (array[i] === elem) return i
-        }
-      }
     , children = []
     , rendering = false
-    , render = function (t) {
-        var i, found
-        for (i = children.length; i--;) {
-          children[i](t);
-          found = true;
-        }
-        rendering = found && frame(render)
-      }
-    , live = function (f) {
-        children.push(f)
-        if (!rendering) render()
-      }
-    , die = function (f) {
-        var i, rest, index = has(children, f)
-        if (index >= 0) {
-          rest = children.slice(index+1)
-          children.length = index
-          children.push.apply(children, rest)
-        }
-      }
+
+  function has(array, elem, i) {
+    if (Array.prototype.indexOf) return array.indexOf(elem)
+    for (i=0; i<array.length; ++i) {
+      if (array[i] === elem) return i
+    }
+  }
+
+  function render(t) {
+    var i, found, count = children.length
+    for (i = count; i--;) {
+      children[i](t)
+      found = true
+    }
+    rendering = found && frame(render)
+  }
+
+  function live(f) {
+    children.push(f)
+    if (!rendering) render()
+  }
+
+  function die(f) {
+    var i, rest, index = has(children, f)
+    if (index >= 0) {
+      rest = children.slice(index+1)
+      children.length = index
+      children.push.apply(children, rest)
+    }
+  }
 
   function parseTransform(style, base) {
     var values = {}, m

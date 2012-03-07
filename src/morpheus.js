@@ -105,7 +105,7 @@
     if (index >= 0) {
       rest = children.slice(index+1)
       children.length = index
-      children.push.apply(children, rest)
+      children = children.concat(rest)
     }
   }
 

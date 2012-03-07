@@ -13,6 +13,7 @@
     , doc = document
     , win = window
     , html = doc.documentElement
+    , thousand = 1000
     , rgbOhex = /^rgb\(|#/
     , relVal = /^([+\-])=([\d\.]+)/
     , numUnit = /^(?:[\+\-]=)?\d+(?:\.\d+)?(%|in|cm|mm|em|ex|pt|pc|px)$/
@@ -86,7 +87,7 @@
 
   function has(array, elem, i) {
     if (Array.prototype.indexOf) return array.indexOf(elem)
-    for (i=0; i<array.length; ++i) {
+    for (i = 0; i < array.length; ++i) {
       if (array[i] === elem) return i
     }
   }
@@ -109,7 +110,7 @@
     if (index >= 0) {
       rest = children.slice(index+1)
       children.length = index
-      children.push.apply(children, rest)
+      children = children.concat(rest)
     }
   }
 
@@ -139,7 +140,7 @@
   function toHex(c) {
     var m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c)
     return (m ? rgb(m[1], m[2], m[3]) : c)
-      .replace(/#(\w)(\w)(\w)$/, '#$1$1$2$2$3$3') // short to long
+      .replace(/#(\w)(\w)(\w)$/, '#$1$1$2$2$3$3') // short skirt to long jacket
   }
 
   // change font-size => fontSize etc.
@@ -149,6 +150,7 @@
     })
   }
 
+  // aren't we having it?
   function fun(f) {
     return typeof f == 'function'
   }
@@ -168,7 +170,7 @@
       // default to a pleasant-to-the-eye easeOut (like native animations)
       return Math.sin(t * Math.PI / 2)
     }
-    var time = duration || 1000
+    var time = duration || thousand
       , self = this
       , diff = to - from
       , start = +new Date()
@@ -241,14 +243,14 @@
     if (k == 'transform') {
       v = {}
       for(var t in begin[i][k]) {
-        v[t] = (t in end[i][k]) ? Math.round(((end[i][k][t] - begin[i][k][t]) * pos + begin[i][k][t]) * 1000) / 1000 : begin[i][k][t]
+        v[t] = (t in end[i][k]) ? Math.round(((end[i][k][t] - begin[i][k][t]) * pos + begin[i][k][t]) * thousand) / thousand : begin[i][k][t]
       }
       return v
     } else if (typeof begin[i][k] == 'string') {
       return nextColor(pos, begin[i][k], end[i][k])
     } else {
       // round so we don't get crazy long floats
-      v = Math.round(((end[i][k] - begin[i][k]) * pos + begin[i][k]) * 1000) / 1000
+      v = Math.round(((end[i][k] - begin[i][k]) * pos + begin[i][k]) * thousand) / thousand
       // some css properties don't require a unit (like zIndex, lineHeight, opacity)
       if (!(k in unitless)) v += units[i][k] || 'px'
       return v

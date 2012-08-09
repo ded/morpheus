@@ -256,7 +256,6 @@
         if(typeof begin[i][k][t] == 'string'){ v[t] = (t in end[i][k]) ? end[i][k][t] : begin[i][k][t] }
         else { v[t] = (t in end[i][k]) ? Math.round(((end[i][k][t] - begin[i][k][t]) * pos + begin[i][k][t]) * thousand) / thousand : begin[i][k][t] }
       }
-      console.log(begin[i][k])
       return v
     } else if (typeof begin[i][k] == 'string') {
       return nextColor(pos, begin[i][k], end[i][k])

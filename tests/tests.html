@@ -170,6 +170,31 @@
         transformTest(test, ok, 'should accept relative translate','translate(100px,100px)','translate(+=30px,-=106px)',['v.translatex == 130','v.translatey == -6'])
       })
 
+      sink('BackgroundPosition', function (test, ok) {
+        var el = document.getElementById('test')
+
+        test('should accept pixel position', 1, function () {
+         morpheus(el, {
+            'backgroundPosition': '20px 20px',
+            duration: 10,
+            complete: function () {
+              ok(el.style.backgroundPosition == '20px 20px', 'el.style.backgroundPosition == "20px 20px"')
+            }
+          })
+        })
+
+        test('should accept percentage position', 1, function () {
+          morpheus(el, {
+            'backgroundPosition': '50% 50%',
+            duration: 10,
+            complete: function () {
+              ok(el.style.backgroundPosition == '50% 50%', 'el.style.backgroundPosition == "50% 50%"')
+            }
+          })
+        })
+
+      })
+
       sink('Out', function (test, ok) {
         var el = document.getElementById('test')
         test('stop() method should stop an animation and run callback', 1, function () {

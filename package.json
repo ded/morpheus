@@ -1,10 +1,10 @@
 {
     "name": "morpheus"
   , "description": "A Brilliant Animator"
-  , "version": "0.6.3"
+  , "version": "0.6.4"
   , "homepage": "https://github.com/ded/morpheus"
   , "author": "Dustin Diaz <polvero@gmail.com> (http://dustindiaz.com)"
-  , "keywords": ["ender", "animation", "motion", "css", "colors", "morph", "tween", "curve", "bezier", "transform", "skew", "rotate"]
+  , "keywords": ["ender", "animation", "motion", "css", "colors", "morph", "tween", "curve", "bezier", "transform", "skew", "rotate", "backgroundPosition"]
   , "main": "./morpheus.js"
   , "ender": "./src/ender.js"
   , "repository": {

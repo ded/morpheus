@@ -240,7 +240,7 @@
         </script>
       </div>
 
-      <div class="stage" id="last">
+      <div class="stage">
         <h2>Transform</h2>
         <div id="ex8-scale" class="box">scale</div>
         <div id="ex8-rotate" class="box">rotate</div>
@@ -276,6 +276,30 @@
             })
           }
         </script>
+      </div>
+
+       <div class="stage" id="last">
+          <h2>BackgroundPosition</h2>
+          <div style="width:100px;height:100px;background:url(https://secure.gravatar.com/avatar/cfac4fc60b4e72258138903daab65b44?s=100) no-repeat" id="ex9" class="box"></div>
+          <script type="text/javascript">
+          !function(){
+            var anim = {
+              stop: function () {}
+            }
+            id('ex9').onmouseover = function() {
+              anim.stop();
+              anim = morpheus(id('ex9'), {
+                backgroundPosition: '0px -60px'
+              });
+            }
+            id('ex9').onmouseout = function() {
+              anim.stop();
+              anim = morpheus(id('ex9'), {
+                backgroundPosition: '0px 0px'
+              });
+            }
+          }();
+          </script>
       </div>
 
     </div>

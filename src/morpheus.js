@@ -16,6 +16,7 @@
     , scale = /scale\(((?:[+\-]=)?([\d\.]+))\)/
     , skew = /skew\(((?:[+\-]=)?([\-\d\.]+))deg, ?((?:[+\-]=)?([\-\d\.]+))deg\)/
     , translate = /translate\(((?:[+\-]=)?([\-\d\.]+))px, ?((?:[+\-]=)?([\-\d\.]+))px\)/
+    , bgPosition = /^(?:[+\-]=)?([\-\d\.]+)?(%|px)\s(?:[+\-]=)?([\-\d\.]+)?(%|px)$/
       // these elements do not require 'px'
     , unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1, transform: 1}
 
@@ -126,6 +127,21 @@
     return s
   }
 
+  function parseBackgroundPosition(style, base) {
+    var values = {}, m
+    if (m = style.match(bgPosition)) {
+      values.backgroundPositionx = by(m[1], base ? base.backgroundPositionx : null)
+      values.backgroundPositionxUnit = m[2]
+      values.backgroundPositiony = by(m[3], base ? base.backgroundPositiony : null)
+      values.backgroundPositionyUnit = m[4]
+    }
+    return values
+  }
+
+  function formatBackgroundPosition(v) {
+    return ( v.backgroundPositionx + v.backgroundPositionxUnit + ' ' + v.backgroundPositiony + v.backgroundPositionyUnit)
+  }
+
   function rgb(r, g, b) {
     return '#' + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)
   }
@@ -234,11 +250,13 @@
 
   // this retreives the frame value within a sequence
   function getTweenVal(pos, units, begin, end, k, i, v) {
-    if (k == 'transform') {
+    if (k == 'transform' || k == 'backgroundPosition') {
       v = {}
       for(var t in begin[i][k]) {
-        v[t] = (t in end[i][k]) ? Math.round(((end[i][k][t] - begin[i][k][t]) * pos + begin[i][k][t]) * thousand) / thousand : begin[i][k][t]
+        if(typeof begin[i][k][t] == 'string'){ v[t] = (t in end[i][k]) ? end[i][k][t] : begin[i][k][t] }
+        else { v[t] = (t in end[i][k]) ? Math.round(((end[i][k][t] - begin[i][k][t]) * pos + begin[i][k][t]) * thousand) / thousand : begin[i][k][t] }
       }
+      console.log(begin[i][k])
       return v
     } else if (typeof begin[i][k] == 'string') {
       return nextColor(pos, begin[i][k], end[i][k])
@@ -335,13 +353,17 @@
         }
 
         begin[i][k] = k == 'transform' ? parseTransform(v) :
-          typeof tmp == 'string' && rgbOhex.test(tmp) ?
-            toHex(v).slice(1) :
-            parseFloat(v)
+          k == 'backgroundPosition' ? parseBackgroundPosition(v) :
+            typeof tmp == 'string' && rgbOhex.test(tmp) ?
+              toHex(v).slice(1) :
+              parseFloat(v)
         end[i][k] = k == 'transform' ? parseTransform(tmp,begin[i][k]) :
-          typeof tmp == 'string' && tmp.charAt(0) == '#' ?
-            toHex(tmp).slice(1) :
-            by(tmp, parseFloat(v));
+          k == 'backgroundPosition' ? parseBackgroundPosition(tmp,begin[i][k]) :
+            typeof tmp == 'string' && tmp.charAt(0) == '#' ?
+              toHex(tmp).slice(1) :
+              by(tmp, parseFloat(v));
+
+        
         // record original unit
         (typeof tmp == 'string') && (unit = tmp.match(numUnit)) && (units[i][k] = unit[1])
       }
@@ -360,9 +382,11 @@
           v = getTweenVal(pos, units, begin, end, k, i)
           k == 'transform' ?
             els[i].style[transform] = formatTransform(v) :
-            k == 'opacity' && !opasity ?
-              (els[i].style.filter = 'alpha(opacity=' + (v * 100) + ')') :
-              (els[i].style[camelize(k)] = v)
+            k == 'backgroundPosition' ?
+              els[i].style['backgroundPosition'] = formatBackgroundPosition(v) :
+              k == 'opacity' && !opasity ?
+                (els[i].style.filter = 'alpha(opacity=' + (v * 100) + ')') :
+                (els[i].style[camelize(k)] = v)
         }
       }
     }, complete, ease])
@@ -375,6 +399,8 @@
   morpheus.transform = transform
   morpheus.parseTransform = parseTransform
   morpheus.formatTransform = formatTransform
+  morpheus.parseBackgroundPosition = parseBackgroundPosition
+  morpheus.formatBackgroundPosition = formatBackgroundPosition
   morpheus.easings = {}
 
   return morpheus

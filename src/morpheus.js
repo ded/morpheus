@@ -63,15 +63,19 @@
         function (el, property) {
           return el.style[camelize(property)]
         }
+    , ieraf = win.msRequestAnimationFrame &&
+        function (callback) {
+          win.msRequestAnimationFrame(function () { callback(+new Date()) })
+        }
     , frame = function () {
         // native animation frames
         // http://webstuff.nfshost.com/anim-timing/Overview.html
         // http://dev.chromium.org/developers/design-documents/requestanimationframe-implementation
-        return win.requestAnimationFrame  ||
+        return ieraf                      ||
+          win.requestAnimationFrame       ||
           win.webkitRequestAnimationFrame ||
           win.mozRequestAnimationFrame    ||
           win.oRequestAnimationFrame      ||
-          win.msRequestAnimationFrame     ||
           function (callback) {
             win.setTimeout(function () {
               callback(+new Date())

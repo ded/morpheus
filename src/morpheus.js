@@ -20,75 +20,77 @@
     , unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1, transform: 1}
 
       // which property name does this browser use for transform
-    , transform = function () {
-        var styles = doc.createElement('a').style
-          , props = ['webkitTransform','MozTransform','OTransform','msTransform','Transform'], i
-        for (i = 0; i < props.length; i++) {
-          if (props[i] in styles) return props[i]
-        }
-      }()
+  var transform = function () {
+    var styles = doc.createElement('a').style
+      , props = ['webkitTransform', 'MozTransform', 'OTransform', 'msTransform', 'Transform']
+      , i
+    for (i = 0; i < props.length; i++) {
+      if (props[i] in styles) return props[i]
+    }
+  }()
 
       // does this browser support the opacity property?
-    , opasity = function () {
-        return typeof doc.createElement('a').style.opacity !== 'undefined'
-      }()
+  var opasity = function () {
+    return typeof doc.createElement('a').style.opacity !== 'undefined'
+  }()
 
       // initial style is determined by the elements themselves
-    , getStyle = doc.defaultView && doc.defaultView.getComputedStyle ?
-        function (el, property) {
-          property = property == 'transform' ? transform : property
-          var value = null
-            , computed = doc.defaultView.getComputedStyle(el, '')
-          computed && (value = computed[camelize(property)])
-          return el.style[property] || value
-        } : html.currentStyle ?
+  var getStyle = doc.defaultView && doc.defaultView.getComputedStyle ?
+    function (el, property) {
+      property = property == 'transform' ? transform : property
+      var value = null
+        , computed = doc.defaultView.getComputedStyle(el, '')
+      computed && (value = computed[camelize(property)])
+      return el.style[property] || value
+    } : html.currentStyle ?
 
-        function (el, property) {
-          property = camelize(property)
+    function (el, property) {
+      property = camelize(property)
 
-          if (property == 'opacity') {
-            var val = 100
-            try {
-              val = el.filters['DXImageTransform.Microsoft.Alpha'].opacity
-            } catch (e1) {
-              try {
-                val = el.filters('alpha').opacity
-              } catch (e2) {}
-            }
-            return val / 100
-          }
-          var value = el.currentStyle ? el.currentStyle[property] : null
-          return el.style[property] || value
-        } :
-        function (el, property) {
-          return el.style[camelize(property)]
+      if (property == 'opacity') {
+        var val = 100
+        try {
+          val = el.filters['DXImageTransform.Microsoft.Alpha'].opacity
+        } catch (e1) {
+          try {
+            val = el.filters('alpha').opacity
+          } catch (e2) {}
         }
-    , frame = function () {
-        // native animation frames
-        // http://webstuff.nfshost.com/anim-timing/Overview.html
-        // http://dev.chromium.org/developers/design-documents/requestanimationframe-implementation
+        return val / 100
+      }
+      var value = el.currentStyle ? el.currentStyle[property] : null
+      return el.style[property] || value
+    } :
+    function (el, property) {
+      return el.style[camelize(property)]
+    }
 
-        var animationFrame =
-            win.requestAnimationFrame       ||
-            win.mozRequestAnimationFrame    ||
-            win.webkitRequestAnimationFrame ||
-            win.msRequestAnimationFrame     ||
-            win.oRequestAnimationFrame      ||
-            undefined
+  var frame = function () {
+    // native animation frames
+    // http://webstuff.nfshost.com/anim-timing/Overview.html
+    // http://dev.chromium.org/developers/design-documents/requestanimationframe-implementation
 
-        if (animationFrame == undefined) {
-          return function (callback) {
-            win.setTimeout(function () {
-              callback(+new Date())
-            }, 11) // these go to eleven
-          }
-        } else {
-          return function (callback) {
-            animationFrame(function () { callback(+new Date()) })
-          }
-        }
-      }()
-    , children = []
+    var animationFrame = win.requestAnimationFrame ||
+      win.mozRequestAnimationFrame ||
+      win.webkitRequestAnimationFrame ||
+      win.msRequestAnimationFrame ||
+      win.oRequestAnimationFrame ||
+      undefined
+
+    if (animationFrame === undefined) {
+      return function (callback) {
+        win.setTimeout(function () {
+          callback(+new Date())
+        }, 11) // these go to eleven
+      }
+    } else {
+      return function (callback) {
+        animationFrame(function () { callback(+new Date()) })
+      }
+    }
+  }()
+
+  var children = []
 
   function has(array, elem, i) {
     if (Array.prototype.indexOf) return array.indexOf(elem)
@@ -112,7 +114,7 @@
   function die(f) {
     var i, rest, index = has(children, f)
     if (index >= 0) {
-      rest = children.slice(index+1)
+      rest = children.slice(index + 1)
       children.length = index
       children = children.concat(rest)
     }
@@ -246,7 +248,7 @@
   function getTweenVal(pos, units, begin, end, k, i, v) {
     if (k == 'transform') {
       v = {}
-      for(var t in begin[i][k]) {
+      for (var t in begin[i][k]) {
         v[t] = (t in end[i][k]) ? Math.round(((end[i][k][t] - begin[i][k][t]) * pos + begin[i][k][t]) * thousand) / thousand : begin[i][k][t]
       }
       return v
@@ -328,8 +330,8 @@
         bez[i] = fun(points) ? points(els[i], xy) : points
         bez[i].push(xy)
         bez[i].unshift([
-            parseInt(left, 10)
-          , parseInt(top, 10)
+          parseInt(left, 10),
+          parseInt(top, 10)
         ])
       }
 
@@ -348,7 +350,7 @@
           typeof tmp == 'string' && rgbOhex.test(tmp) ?
             toHex(v).slice(1) :
             parseFloat(v)
-        end[i][k] = k == 'transform' ? parseTransform(tmp,begin[i][k]) :
+        end[i][k] = k == 'transform' ? parseTransform(tmp, begin[i][k]) :
           typeof tmp == 'string' && tmp.charAt(0) == '#' ?
             toHex(tmp).slice(1) :
             by(tmp, parseFloat(v));
@@ -389,4 +391,4 @@
 
   return morpheus
 
-})
+});

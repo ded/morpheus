@@ -68,24 +68,30 @@
         function (el, property) {
           return el.style[camelize(property)]
         }
-    , ieraf = win.msRequestAnimationFrame &&
-        function (callback) {
-          win.msRequestAnimationFrame(function () { callback(+new Date()) })
-        }
     , frame = function () {
         // native animation frames
         // http://webstuff.nfshost.com/anim-timing/Overview.html
         // http://dev.chromium.org/developers/design-documents/requestanimationframe-implementation
-        return ieraf                      ||
-          win.requestAnimationFrame       ||
-          win.webkitRequestAnimationFrame ||
-          win.mozRequestAnimationFrame    ||
-          win.oRequestAnimationFrame      ||
-          function (callback) {
+
+        var animationFrame =
+            win.requestAnimationFrame       ||
+            win.mozRequestAnimationFrame    ||
+            win.webkitRequestAnimationFrame ||
+            win.msRequestAnimationFrame     ||
+            win.oRequestAnimationFrame      ||
+            undefined
+
+        if (animationFrame == undefined) {
+          return function (callback) {
             win.setTimeout(function () {
               callback(+new Date())
             }, 11) // these go to eleven
           }
+        } else {
+          return function (callback) {
+            animationFrame(function () { callback(+new Date()) })
+          }
+        }
       }()
     , children = []
 

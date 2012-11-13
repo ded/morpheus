@@ -63,16 +63,11 @@
         function (el, property) {
           return el.style[camelize(property)]
         }
-    , ieraf = win.msRequestAnimationFrame &&
-        function (callback) {
-          win.msRequestAnimationFrame(function () { callback(+new Date()) })
-        }
     , frame = function () {
         // native animation frames
         // http://webstuff.nfshost.com/anim-timing/Overview.html
         // http://dev.chromium.org/developers/design-documents/requestanimationframe-implementation
-        return ieraf                      ||
-          win.requestAnimationFrame       ||
+        return win.requestAnimationFrame  ||
           win.webkitRequestAnimationFrame ||
           win.mozRequestAnimationFrame    ||
           win.oRequestAnimationFrame      ||
@@ -172,12 +167,13 @@
       , self = this
       , diff = to - from
       , start = +new Date()
+      , hrStart = win.performance && win.performance.now && win.performance.now()
       , stop = 0
       , end = 0
     live(run)
 
     function run(t) {
-      var delta = t - start
+      var delta = (t < 1e12) ? t - hrStart : t - start
       if (delta > time || stop) {
         to = isFinite(to) ? to : 1
         stop ? end && fn(to) : fn(to)

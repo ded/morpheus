@@ -70,6 +70,7 @@
         return win.requestAnimationFrame  ||
           win.webkitRequestAnimationFrame ||
           win.mozRequestAnimationFrame    ||
+          win.msRequestAnimationFrame     ||
           win.oRequestAnimationFrame      ||
           function (callback) {
             win.setTimeout(function () {
@@ -173,7 +174,7 @@
     live(run)
 
     function run(t) {
-      var delta = (t < 1e12) ? t - hrStart : t - start
+      var delta = (t < 1e12 && hrStart) ? t - hrStart : t - start
       if (delta > time || stop) {
         to = isFinite(to) ? to : 1
         stop ? end && fn(to) : fn(to)

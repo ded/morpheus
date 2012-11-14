@@ -68,6 +68,7 @@
         function (el, property) {
           return el.style[camelize(property)]
         }
+    , hasHrTimer = win.performance && win.performance.now
     , frame = function () {
         // native animation frames
         // http://webstuff.nfshost.com/anim-timing/Overview.html
@@ -173,13 +174,13 @@
       , self = this
       , diff = to - from
       , start = +new Date()
-      , hrStart = win.performance && win.performance.now && win.performance.now()
+      , hrStart = hasHrTimer && win.performance.now()
       , stop = 0
       , end = 0
     live(run)
 
     function run(t) {
-      var delta = (t < 1e12 && hrStart) ? t - hrStart : t - start
+      var delta = (t < 1e12 && hasHrTimer) ? t - hrStart : t - start
       if (delta > time || stop) {
         to = isFinite(to) ? to : 1
         stop ? end && fn(to) : fn(to)

@@ -25,8 +25,6 @@
       // these elements do not require 'px'
     , unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1, transform: 1}
 
-
-
   // which property name does this browser use for transform
   var transform = function () {
     var styles = doc.createElement('a').style

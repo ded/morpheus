@@ -1,0 +1,17 @@
+{
+  "node": true,
+  "asi": true,
+  "laxcomma": true,
+  "boss": true,
+  "browser": true,
+  "eqnull": true,
+  "expr": true,
+  "loopfunc": true,
+  "strict": false,
+  "trailing": true,
+  "undef": true,
+  "smarttabs": true,
+  "supernew": true,
+  "sub": true,
+  "predef": ["define", "require"]
+}

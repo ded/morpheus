@@ -7,6 +7,7 @@
   var context = this
     , doc = document
     , win = window
+    , perf = win.performance
     , html = doc.documentElement
     , thousand = 1000
     , rgbOhex = /^rgb\(|#/
@@ -19,7 +20,7 @@
       // these elements do not require 'px'
     , unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1, transform: 1}
 
-      // which property name does this browser use for transform
+  // which property name does this browser use for transform
   var transform = function () {
     var styles = doc.createElement('a').style
       , props = ['webkitTransform', 'MozTransform', 'OTransform', 'msTransform', 'Transform']
@@ -29,12 +30,12 @@
     }
   }()
 
-      // does this browser support the opacity property?
+  // does this browser support the opacity property?
   var opasity = function () {
     return typeof doc.createElement('a').style.opacity !== 'undefined'
   }()
 
-      // initial style is determined by the elements themselves
+  // initial style is determined by the elements themselves
   var getStyle = doc.defaultView && doc.defaultView.getComputedStyle ?
     function (el, property) {
       property = property == 'transform' ? transform : property
@@ -69,25 +70,16 @@
     // native animation frames
     // http://webstuff.nfshost.com/anim-timing/Overview.html
     // http://dev.chromium.org/developers/design-documents/requestanimationframe-implementation
-
-    var animationFrame = win.requestAnimationFrame ||
-      win.mozRequestAnimationFrame ||
+    return win.requestAnimationFrame  ||
       win.webkitRequestAnimationFrame ||
-      win.msRequestAnimationFrame ||
-      win.oRequestAnimationFrame ||
-      undefined
-
-    if (animationFrame === undefined) {
-      return function (callback) {
+      win.mozRequestAnimationFrame    ||
+      win.msRequestAnimationFrame     ||
+      win.oRequestAnimationFrame      ||
+      function (callback) {
         win.setTimeout(function () {
           callback(+new Date())
         }, 11) // these go to eleven
       }
-    } else {
-      return function (callback) {
-        animationFrame(function () { callback(+new Date()) })
-      }
-    }
   }()
 
   var children = []
@@ -179,7 +171,7 @@
     var time = duration || thousand
       , self = this
       , diff = to - from
-      , start = +new Date()
+      , start = perf && perf.now ? perf.now() : +new Date()
       , stop = 0
       , end = 0
     live(run)

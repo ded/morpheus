@@ -4,10 +4,13 @@
   else this[name] = definition()
 }('morpheus', function () {
 
-  var context = this
-    , doc = document
+  var doc = document
     , win = window
-    , perf = win.performance
+    , startTime = win.mozAnimationStartTime
+        ? function () { return win.mozAnimationStartTime }
+        : win.performance
+            ? function () { return win.performance.now() }
+            : function () { return +new Date() }
     , html = doc.documentElement
     , thousand = 1000
     , rgbOhex = /^rgb\(|#/
@@ -104,7 +107,7 @@
   }
 
   function die(f) {
-    var i, rest, index = has(children, f)
+    var rest, index = has(children, f)
     if (index >= 0) {
       rest = children.slice(index + 1)
       children.length = index
@@ -171,7 +174,7 @@
     var time = duration || thousand
       , self = this
       , diff = to - from
-      , start = perf && perf.now ? perf.now() : +new Date()
+      , start = startTime()
       , stop = 0
       , end = 0
     live(run)

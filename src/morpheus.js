@@ -8,7 +8,7 @@
     , win = window
     , startTime = win.mozAnimationStartTime
         ? function () { return win.mozAnimationStartTime }
-        : win.performance
+        : win.performance && win.performance.now
             ? function () { return win.performance.now() }
             : function () { return +new Date() }
     , html = doc.documentElement

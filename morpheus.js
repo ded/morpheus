@@ -9,10 +9,11 @@
   else this[name] = definition()
 }('morpheus', function () {
 
-  var context = this
-    , doc = document
+  var doc = document
     , win = window
     , perf = win.performance
+    , perfNow = perf && (perf.now || perf.webkitNow || perf.msNow || perf.mozNow)
+    , now = perfNow ? function () { return perfNow.call(perf) } : function () { return +new Date() }
     , html = doc.documentElement
     , thousand = 1000
     , rgbOhex = /^rgb\(|#/
@@ -80,11 +81,7 @@
       win.mozRequestAnimationFrame    ||
       win.msRequestAnimationFrame     ||
       win.oRequestAnimationFrame      ||
-      function (callback) {
-        win.setTimeout(function () {
-          callback(+new Date())
-        }, 11) // these go to eleven
-      }
+      function (callback) { win.setTimeout(callback, 17) } // when I was 17..
   }()
 
   var children = []
@@ -96,8 +93,10 @@
     }
   }
 
-  function render(t) {
-    var i, count = children.length
+  function render() {
+    var i
+      , t = now()
+      , count = children.length
     for (i = count; i--;) {
       children[i](t)
     }
@@ -109,7 +108,7 @@
   }
 
   function die(f) {
-    var i, rest, index = has(children, f)
+    var rest, index = has(children, f)
     if (index >= 0) {
       rest = children.slice(index + 1)
       children.length = index
@@ -176,7 +175,7 @@
     var time = duration || thousand
       , self = this
       , diff = to - from
-      , start = perf && perf.now ? perf.now() : +new Date()
+      , start = now()
       , stop = 0
       , end = 0
     live(run)

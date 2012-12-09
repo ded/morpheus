@@ -7,7 +7,8 @@
   var doc = document
     , win = window
     , perf = win.performance
-    , now = perf && perf.now ? function () { return perf.now() } : function () { return +new Date() }
+    , perfNow = perf && (perf.now || perf.webkitNow || perf.msNow || perf.mozNow)
+    , now = perfNow ? function () { return perfNow.call(perf) } : function () { return +new Date() }
     , html = doc.documentElement
     , thousand = 1000
     , rgbOhex = /^rgb\(|#/
@@ -87,8 +88,10 @@
     }
   }
 
-  function render(t) {
-    var i, count = children.length
+  function render() {
+    var i
+      , t = now()
+      , count = children.length
     for (i = count; i--;) {
       children[i](t)
     }
@@ -172,8 +175,8 @@
       , end = 0
     live(run)
 
-    function run() {
-      var delta = now() - start
+    function run(t) {
+      var delta = t - start
       if (delta > time || stop) {
         to = isFinite(to) ? to : 1
         stop ? end && fn(to) : fn(to)

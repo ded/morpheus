@@ -4,10 +4,8 @@
   else this[name] = definition()
 }('morpheus', function () {
 
-  var context = this
-    , doc = document
+  var doc = document
     , win = window
-    , perf = win.performance
     , html = doc.documentElement
     , thousand = 1000
     , rgbOhex = /^rgb\(|#/
@@ -66,21 +64,84 @@
       return el.style[camelize(property)]
     }
 
-  var frame = function () {
-    // native animation frames
-    // http://webstuff.nfshost.com/anim-timing/Overview.html
-    // http://dev.chromium.org/developers/design-documents/requestanimationframe-implementation
-    return win.requestAnimationFrame  ||
-      win.webkitRequestAnimationFrame ||
-      win.mozRequestAnimationFrame    ||
-      win.msRequestAnimationFrame     ||
-      win.oRequestAnimationFrame      ||
-      function (callback) {
-        win.setTimeout(function () {
-          callback(+new Date())
-        }, 11) // these go to eleven
-      }
-  }()
+  // Set up an animation frame function, there are 3 alternative situations that we
+  // feature-detect for:
+  //   1) old browser that doesn't have a useful requestAnimationFrame
+  //   2) a requestAnimationFrame that passes an epoch-based timestamp argument
+  //   3) a requestAnimationFrame that passes a performance.now()-based timestamp
+  //
+  // frame(fn, looper) takes a function that should be called when the browser is ready
+  // for a paint. The first argument provided to that function should be a time-delta,
+  // i.e. the number of ms since the start of the animation. The second argument is
+  // a callback that can be used to run the *next* frame in the same animation loop.
+  //
+  // Note:
+  //   1) `window.performance` may be prefixed in other browsers when made available
+  //      in the future.
+  //   2) it may become necessary to use window.animationStartTime if Gecko et. al.
+  //      change from epoch-based timestamps
+  var frame = (function () {
+        // requestAnimationFrame dummy, older browsers
+    var derp = function (callback) {
+          win.setTimeout(callback, 11) // these go to eleven
+        }
+
+        // find a native requestAnimationFrame
+      , raf = win.requestAnimationFrame
+          || win.webkitRequestAnimationFrame
+          || win.mozRequestAnimationFrame
+          || win.msRequestAnimationFrame
+          || win.oRequestAnimationFrame
+          || derp
+
+        // wrap a callback in a requestAnimationFrame-based framing function
+      , _frame = function (now, fn) {
+          var start = now()
+            , looper = function () {
+                raf(function (t) {
+                  fn(t - start, looper)
+                })
+              }
+          looper()
+        }
+
+      , dnow = function () { return +new Date() }
+        // for requestAnimationFrame that's epoch-based
+      , dframe = function (fn) { return _frame(dnow, fn) }
+        // for requestAnimationFrame that's performance.now() based
+      , pnow = win.performance
+          && win.performance.now
+          && function () { return win.performance.now() }
+      , nframe = function (fn) { return _frame(pnow, fn) }
+
+        // wrap a callback for an older browser, with manual epoch-based timing
+      , crapframe = function (fn) {
+          var start = dnow()
+            , looper = function () {
+                raf(function () {
+                  fn(dnow() - start, looper)
+                })
+              }
+          looper()
+        }
+
+    if (raf !== derp) {
+      // if we're in a browser with requestAnimationFrame then try it out and see what we get
+      raf(function (t) {
+        // case 1: argument is epoch-based, use `dframe()`
+        if (Math.abs(t - dnow()) < 100)
+          frame = dframe
+        // case 2: argument is performance.now()-based, use `nframe()`
+        else if (pnow && Math.abs(t - pnow() < 100))
+          frame = nframe
+        // case 3: WTH? crapframe it is!
+      })
+    }
+
+    // our initial framing function, crapframe, works across all browsers, it may be
+    // replaced once our delayed feature-detect (above) completes
+    return crapframe
+  })()
 
   var children = []
 
@@ -91,12 +152,12 @@
     }
   }
 
-  function render(t) {
+  function render(d, looper) {
     var i, count = children.length
     for (i = count; i--;) {
-      children[i](t)
+      children[i](d)
     }
-    children.length && frame(render)
+    children.length && looper(render)
   }
 
   function live(f) {
@@ -104,7 +165,7 @@
   }
 
   function die(f) {
-    var i, rest, index = has(children, f)
+    var rest, index = has(children, f)
     if (index >= 0) {
       rest = children.slice(index + 1)
       children.length = index
@@ -171,13 +232,10 @@
     var time = duration || thousand
       , self = this
       , diff = to - from
-      , start = perf && perf.now ? perf.now() : +new Date()
       , stop = 0
       , end = 0
-    live(run)
 
-    function run(t) {
-      var delta = t - start
+    function run(delta) {
       if (delta > time || stop) {
         to = isFinite(to) ? to : 1
         stop ? end && fn(to) : fn(to)
@@ -190,6 +248,9 @@
         fn((diff * ease(delta / time)) + from) :
         fn(ease(delta / time))
     }
+
+    live(run)
+
     return {
       stop: function (jump) {
         stop = 1

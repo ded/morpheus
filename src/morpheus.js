@@ -76,7 +76,11 @@
       win.mozRequestAnimationFrame    ||
       win.msRequestAnimationFrame     ||
       win.oRequestAnimationFrame      ||
-      function (callback) { win.setTimeout(callback, 17) } // when I was 17..
+      function (callback) {
+        win.setTimeout(function () {
+          callback(+new Date())
+        }, 17) // when I was 17..
+      }
   }()
 
   var children = []
@@ -88,12 +92,13 @@
     }
   }
 
-  function render() {
-    var i
-      , t = now()
-      , count = children.length
+  function render(timestamp) {
+    var i, count = children.length
+    // if we're using a high res timer, make sure timestamp is not the old epoch-based value.
+    // http://updates.html5rocks.com/2012/05/requestAnimationFrame-API-now-with-sub-millisecond-precision
+    if (perfNow && timestamp > 1e12) timestamp = now()
     for (i = count; i--;) {
-      children[i](t)
+      children[i](timestamp)
     }
     children.length && frame(render)
   }
@@ -173,7 +178,6 @@
       , start = now()
       , stop = 0
       , end = 0
-    live(run)
 
     function run(t) {
       var delta = t - start
@@ -189,6 +193,9 @@
         fn((diff * ease(delta / time)) + from) :
         fn(ease(delta / time))
     }
+    
+    live(run)
+    
     return {
       stop: function (jump) {
         stop = 1

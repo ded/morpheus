@@ -26,6 +26,24 @@
     <ol id="tests"></ol>
 
     <script>
+      sink('Basic', function(test, ok, before, after) {
+        var el = document.getElementById('test');
+
+        test('should take roughly the correct duration', 1, function () {
+          var start = +new Date()
+            , duration = 500
+          el.style.width = '10px'
+          morpheus(el, {
+            width: '500px',
+            duration: duration,
+            complete: function () {
+              var delta = +new Date() - start
+              ok(Math.abs(delta - duration) < duration * 0.2, 'duration is +/- 20% of requested (' + delta + ')')
+            }
+          })
+        })
+      })
+
       sink('Integers', function(test, ok, before, after) {
         var el = document.getElementById('test');
         before(function () {

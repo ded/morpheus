@@ -4,10 +4,11 @@
   else this[name] = definition()
 }('morpheus', function () {
 
-  var context = this
-    , doc = document
+  var doc = document
     , win = window
     , perf = win.performance
+    , perfNow = perf && (perf.now || perf.webkitNow || perf.msNow || perf.mozNow)
+    , now = perfNow ? function () { return perfNow.call(perf) } : function () { return +new Date() }
     , html = doc.documentElement
     , thousand = 1000
     , rgbOhex = /^rgb\(|#/
@@ -78,7 +79,7 @@
       function (callback) {
         win.setTimeout(function () {
           callback(+new Date())
-        }, 11) // these go to eleven
+        }, 17) // when I was 17..
       }
   }()
 
@@ -91,10 +92,13 @@
     }
   }
 
-  function render(t) {
+  function render(timestamp) {
     var i, count = children.length
+    // if we're using a high res timer, make sure timestamp is not the old epoch-based value.
+    // http://updates.html5rocks.com/2012/05/requestAnimationFrame-API-now-with-sub-millisecond-precision
+    if (perfNow && timestamp > 1e12) timestamp = now()
     for (i = count; i--;) {
-      children[i](t)
+      children[i](timestamp)
     }
     children.length && frame(render)
   }
@@ -104,7 +108,7 @@
   }
 
   function die(f) {
-    var i, rest, index = has(children, f)
+    var rest, index = has(children, f)
     if (index >= 0) {
       rest = children.slice(index + 1)
       children.length = index
@@ -171,10 +175,9 @@
     var time = duration || thousand
       , self = this
       , diff = to - from
-      , start = perf && perf.now ? perf.now() : +new Date()
+      , start = now()
       , stop = 0
       , end = 0
-    live(run)
 
     function run(t) {
       var delta = t - start
@@ -190,6 +193,9 @@
         fn((diff * ease(delta / time)) + from) :
         fn(ease(delta / time))
     }
+    
+    live(run)
+    
     return {
       stop: function (jump) {
         stop = 1

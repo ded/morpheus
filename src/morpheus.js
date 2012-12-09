@@ -6,11 +6,8 @@
 
   var doc = document
     , win = window
-    , startTime = win.mozAnimationStartTime
-        ? function () { return win.mozAnimationStartTime }
-        : win.performance && win.performance.now
-            ? function () { return win.performance.now() }
-            : function () { return +new Date() }
+    , perf = win.performance
+    , now = perf && perf.now ? function () { return perf.now() } : function () { return +new Date() }
     , html = doc.documentElement
     , thousand = 1000
     , rgbOhex = /^rgb\(|#/
@@ -78,11 +75,7 @@
       win.mozRequestAnimationFrame    ||
       win.msRequestAnimationFrame     ||
       win.oRequestAnimationFrame      ||
-      function (callback) {
-        win.setTimeout(function () {
-          callback(+new Date())
-        }, 11) // these go to eleven
-      }
+      function (callback) { win.setTimeout(callback, 17) } // when I was 17..
   }()
 
   var children = []
@@ -174,13 +167,13 @@
     var time = duration || thousand
       , self = this
       , diff = to - from
-      , start = startTime()
+      , start = now()
       , stop = 0
       , end = 0
     live(run)
 
-    function run(t) {
-      var delta = t - start
+    function run() {
+      var delta = now() - start
       if (delta > time || stop) {
         to = isFinite(to) ? to : 1
         stop ? end && fn(to) : fn(to)

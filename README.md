@@ -185,10 +185,11 @@ var morpheus = require('morpheus')
 
 If you're looking to contribute. Add your changes to `src/morpheus.js` Then run the following
 
-    $ npm install smoosh -g
-    $ npm install --dev
-    $ make
-    $ open tests/tests.html
+``` sh
+npm install .
+make
+open tests/tests.html
+```
 
 Morpheus (c) Dustin Diaz 2011 - License MIT
 

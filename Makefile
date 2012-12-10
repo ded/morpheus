@@ -1,3 +1,3 @@
 # npm install smoosh -g
 boosh:
-	smoosh make ./build.json
+	node_modules/smoosh/bin/smoosh make ./build.json

@@ -140,7 +140,7 @@
 
   // convert rgb and short hex to long hex
   function toHex(c) {
-    var m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(c)
+    var m = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
     return (m ? rgb(m[1], m[2], m[3]) : c)
       .replace(/#(\w)(\w)(\w)$/, '#$1$1$2$2$3$3') // short skirt to long jacket
   }
@@ -157,6 +157,11 @@
     return typeof f == 'function'
   }
 
+  function nativeTween(t) {
+    // default to a pleasant-to-the-eye easeOut (like native animations)
+    return Math.sin(t * Math.PI / 2)
+  }
+
   /**
     * Core tween method that requests each frame
     * @param duration: time in milliseconds. defaults to 1000
@@ -168,10 +173,7 @@
     * @returns method to stop the animation
     */
   function tween(duration, fn, done, ease, from, to) {
-    ease = fun(ease) ? ease : morpheus.easings[ease] || function (t) {
-      // default to a pleasant-to-the-eye easeOut (like native animations)
-      return Math.sin(t * Math.PI / 2)
-    }
+    ease = fun(ease) ? ease : morpheus.easings[ease] || nativeTween
     var time = duration || thousand
       , self = this
       , diff = to - from
@@ -193,9 +195,9 @@
         fn((diff * ease(delta / time)) + from) :
         fn(ease(delta / time))
     }
-    
+
     live(run)
-    
+
     return {
       stop: function (jump) {
         stop = 1

@@ -12,7 +12,7 @@
     , "url": "https://github.com/ded/morpheus.git"
   }
   , "devDependencies": {
-        "sink-test": ">= 0.0.9"
+        "sink-test": "1.x.x"
       , "smoosh": "0.4.0"
   }
 }

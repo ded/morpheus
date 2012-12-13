@@ -27,7 +27,7 @@
 
     <script>
       sink('Basic', function(test, ok, before, after) {
-        var el = document.getElementById('test');
+        var el = document.getElementById('test')
 
         test('should take roughly the correct duration', 1, function () {
           var start = +new Date()
@@ -42,10 +42,25 @@
             }
           })
         })
+
+        test('should retain all options', 2, function () {
+          var n = 0
+          var options = {
+            width: 100,
+            duration: 50,
+            complete: function () {
+              ok(true, 'called complete ' + (++n) + ' time(s)')
+              if (n < 2) {
+                morpheus(el, options)
+              }
+            }
+          }
+          morpheus(el, options)
+        })
       })
 
       sink('Integers', function(test, ok, before, after) {
-        var el = document.getElementById('test');
+        var el = document.getElementById('test')
         before(function () {
           el.style.left = 0
           el.style.top = '10px'

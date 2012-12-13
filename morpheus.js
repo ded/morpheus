@@ -302,11 +302,6 @@
       , originalLeft
       , originalTop
 
-    delete options.complete;
-    delete options.duration;
-    delete options.easing;
-    delete options.bezier;
-
     if (points) {
       // remember the original values for top|left
       originalLeft = options.left;
@@ -341,6 +336,14 @@
       }
 
       for (var k in options) {
+        switch (k) {
+        case 'complete':
+        case 'duration':
+        case 'easing':
+        case 'bezier':
+          continue;
+          break
+        }
         var v = getStyle(els[i], k), unit
           , tmp = fun(options[k]) ? options[k](els[i]) : options[k]
         if (typeof tmp == 'string' &&

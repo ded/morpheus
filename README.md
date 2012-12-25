@@ -88,7 +88,7 @@ Grade A & C Browsers according to Yahoo's [Graded Browser Support](http://develo
 
 Ender integration
 --------
-Got [Ender](http://ender.no.de)? No? Get it.
+Got [Ender](http://ender.jit.su)? No? Get it.
 
     $ npm install ender -g
 

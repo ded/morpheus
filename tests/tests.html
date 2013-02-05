@@ -146,6 +146,37 @@
           })
         })
 
+        test('should accept rgb function', 1, function () {
+          morpheus(el, {
+            color: 'rgb(10, 20, 30)',
+            duration: 10,
+            complete: function () {
+              ok(el.style.color == 'rgb(10, 20, 30)', 'color is rgb(10, 20, 30)')
+            }
+          })
+        })
+
+        test('should accept hsl function', 1, function () {
+          morpheus(el, {
+            color: 'hsl(50, 75%, 50%)',
+            duration: 10,
+            complete: function () {
+              ok(el.style.color == 'rgb(223, 191, 31)', 'color is rgb(223, 191, 31)')
+            }
+          })
+        })
+
+        test('should work with transparent colors', 1, function () {
+          el.style.color = 'hsla(10, 100%, 25%, 0.75)'
+          morpheus(el, {
+            color: 'hsla(50, 75%, 50%, 0.2)',
+            duration: 10,
+            complete: function () {
+              ok(el.style.color == 'rgba(223, 191, 31, 0.2)', 'color is rgb(223, 191, 31, 0.2)')
+            }
+          })
+        })
+
       });
 
       sink('Syntax', function (test, ok) {
@@ -175,32 +206,32 @@
       })
 
       var transformTest = function(test, ok, title, start, transform, verify) {
-        verify = typeof verify == 'string' ? [verify] : verify
+        if (verify == null) {
+          verify = transform
+        }
         var el = document.getElementById('test')
-        test(title, verify.length, function() {
+        test(title, 1, function() {
           el.style[morpheus.transform] = start
           morpheus(el, {
             transform: transform,
             duration: 10,
             complete: function () {
-              var v = morpheus.parseTransform(el.style[morpheus.transform])
-              for (var i = 0; i < verify.length; i++) {
-                ok(eval(verify[i]), verify[i])
-              }
+              ok(el.style[morpheus.transform] == verify, verify)
             }
           })
         })
       }
 
       sink('Transform', function(test, ok, before, after) {
-        transformTest(test, ok, 'should accept absolute rotate','rotate(30deg)','rotate(40deg)','v.rotate == 40')
-        transformTest(test, ok, 'should accept relative rotate','rotate(10deg)','rotate(-=20deg)','v.rotate == -10 || v.rotate == 350')
-        transformTest(test, ok, 'should accept absolute scale','scale(1)','scale(3)','v.scale == 3')
-        transformTest(test, ok, 'should accept relative scale','scale(1)','scale(+=3)','v.scale == 4')
-        transformTest(test, ok, 'should accept absolute skew','skew(10deg,10deg)','skew(30deg,90deg)',['v.skewx == 30','v.skewy == 90'])
-        transformTest(test, ok, 'should accept relative skew','skew(10deg,10deg)','skew(+=30deg,-=6deg)',['v.skewx == 40','v.skewy == 4'])
-        transformTest(test, ok, 'should accept absolute translate','translate(-10px,0px)','translate(30px,99px)',['v.translatex == 30','v.translatey == 99'])
-        transformTest(test, ok, 'should accept relative translate','translate(100px,100px)','translate(+=30px,-=106px)',['v.translatex == 130','v.translatey == -6'])
+        transformTest(test, ok, 'should accept absolute rotate','rotate(30deg)','rotate(40deg)')
+        transformTest(test, ok, 'should accept relative rotate','rotate(10deg)','rotate(-=20deg)', 'rotate(-10deg)')
+        transformTest(test, ok, 'should accept absolute scale','scale(1)','scale(3)')
+        transformTest(test, ok, 'should accept relative scale','scale(1)','scale(+=3)', 'scale(4)')
+        transformTest(test, ok, 'should accept absolute skew','skew(10deg,10deg)','skew(30deg, 90deg)')
+        transformTest(test, ok, 'should accept relative skew','skew(10deg,10deg)','skew(+=30deg,-=6deg)', 'skew(40deg, 4deg)')
+        transformTest(test, ok, 'should accept absolute translate','translate(-10px,0px)','translate(30px, 99px)')
+        transformTest(test, ok, 'should accept relative translate','translate(100px,100px)','translate(+=30px,-=106px)', 'translate(130px, -6px)')
+        transformTest(test, ok, 'should accept scaleY','scaleY(0)','scaleY(0.5)')
       })
 
       sink('Out', function (test, ok) {

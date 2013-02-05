@@ -11,13 +11,6 @@
     , now = perfNow ? function () { return perfNow.call(perf) } : function () { return +new Date() }
     , html = doc.documentElement
     , thousand = 1000
-    , rgbOhex = /^rgb\(|#/
-    , relVal = /^([+\-])=([\d\.]+)/
-    , numUnit = /^(?:[\+\-]=)?\d+(?:\.\d+)?(%|in|cm|mm|em|ex|pt|pc|px)$/
-    , rotate = /rotate\(((?:[+\-]=)?([\-\d\.]+))deg\)/
-    , scale = /scale\(((?:[+\-]=)?([\d\.]+))\)/
-    , skew = /skew\(((?:[+\-]=)?([\-\d\.]+))deg, ?((?:[+\-]=)?([\-\d\.]+))deg\)/
-    , translate = /translate\(((?:[+\-]=)?([\-\d\.]+))px, ?((?:[+\-]=)?([\-\d\.]+))px\)/
       // these elements do not require 'px'
     , unitless = { lineHeight: 1, zoom: 1, zIndex: 1, opacity: 1, transform: 1}
 
@@ -37,6 +30,7 @@
   }()
 
   // initial style is determined by the elements themselves
+  // TODO: redundant camelize, but getStyle is exposed to the outside world, so removing this might break compatibility
   var getStyle = doc.defaultView && doc.defaultView.getComputedStyle ?
     function (el, property) {
       property = property == 'transform' ? transform : property
@@ -114,35 +108,6 @@
       children.length = index
       children = children.concat(rest)
     }
-  }
-
-  function parseTransform(style, base) {
-    var values = {}, m
-    if (m = style.match(rotate)) values.rotate = by(m[1], base ? base.rotate : null)
-    if (m = style.match(scale)) values.scale = by(m[1], base ? base.scale : null)
-    if (m = style.match(skew)) {values.skewx = by(m[1], base ? base.skewx : null); values.skewy = by(m[3], base ? base.skewy : null)}
-    if (m = style.match(translate)) {values.translatex = by(m[1], base ? base.translatex : null); values.translatey = by(m[3], base ? base.translatey : null)}
-    return values
-  }
-
-  function formatTransform(v) {
-    var s = ''
-    if ('rotate' in v) s += 'rotate(' + v.rotate + 'deg) '
-    if ('scale' in v) s += 'scale(' + v.scale + ') '
-    if ('translatex' in v) s += 'translate(' + v.translatex + 'px,' + v.translatey + 'px) '
-    if ('skewx' in v) s += 'skew(' + v.skewx + 'deg,' + v.skewy + 'deg)'
-    return s
-  }
-
-  function rgb(r, g, b) {
-    return '#' + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)
-  }
-
-  // convert rgb and short hex to long hex
-  function toHex(c) {
-    var m = c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
-    return (m ? rgb(m[1], m[2], m[3]) : c)
-      .replace(/#(\w)(\w)(\w)$/, '#$1$1$2$2$3$3') // short skirt to long jacket
   }
 
   // change font-size => fontSize etc.
@@ -231,43 +196,182 @@
     return [r[0][0], r[0][1]]
   }
 
-  // this gets you the next hex in line according to a 'position'
-  function nextColor(pos, start, finish) {
-    var r = [], i, e, from, to
-    for (i = 0; i < 6; i++) {
-      from = Math.min(15, parseInt(start.charAt(i),  16))
-      to   = Math.min(15, parseInt(finish.charAt(i), 16))
-      e = Math.floor((to - from) * pos + from)
-      e = e > 15 ? 15 : e < 0 ? 0 : e
-      r[i] = e.toString(16)
-    }
-    return '#' + r.join('')
-  }
 
-  // this retreives the frame value within a sequence
-  function getTweenVal(pos, units, begin, end, k, i, v) {
-    if (k == 'transform') {
-      v = {}
-      for (var t in begin[i][k]) {
-        v[t] = (t in end[i][k]) ? Math.round(((end[i][k][t] - begin[i][k][t]) * pos + begin[i][k][t]) * thousand) / thousand : begin[i][k][t]
+  // Takes a CSS "used value" and returns a parsed object
+  function parseCSS1(k, s, i) {
+    var x, y, a = [], old = i
+    // It's a number
+    if (/[+\-0-9]/.test(s[i])) {
+      x = { type: 'number' }
+      if (/[+\-]/.test(s[i])) {
+        if (s[i + 1] === '=') {
+          x.relative = s[i]
+          i += 2
+        } else {
+          a.push(s[i])
+          i += 1
+        }
       }
-      return v
-    } else if (typeof begin[i][k] == 'string') {
-      return nextColor(pos, begin[i][k], end[i][k])
-    } else {
-      // round so we don't get crazy long floats
-      v = Math.round(((end[i][k] - begin[i][k]) * pos + begin[i][k]) * thousand) / thousand
+      while (s[i] && /[0-9\.]/.test(s[i])) {
+        a.push(s[i])
+        i += 1
+      }
+      x.value = +a.join('')
+
+      // This is for the optional unit
+      a = []
+      while (s[i] && /[a-zA-Z%]/.test(s[i])) {
+        a.push(s[i])
+        i += 1
+      }
+      x.unit = a.join('')
+
+      // TODO: pretty hacky
       // some css properties don't require a unit (like zIndex, lineHeight, opacity)
-      if (!(k in unitless)) v += units[i][k] || 'px'
-      return v
+      if (x.unit === '' && !(k in unitless)) {
+        x.unit = 'px'
+      }
+    } else {
+      while (s[i] && /[^\( ]/.test(s[i])) {
+        a.push(s[i])
+        i += 1
+      }
+      // It's a function
+      // TODO: doesn't currently handle stuff like `foo(bar qux, corge)`
+      if (s[i] === '(') {
+        x = { type: 'function', value: a.join(''), args: [] }
+        i += 1
+        while (s[i]) {
+          while (s[i] === ' ') {
+            i += 1
+          }
+          y = parseCSS1('opacity', s, i)
+          x.args.push(y.value)
+          i = y.index
+          if (s[i] === ')') {
+            i += 1
+            break
+          } else if (s[i] === ',') {
+            i += 1
+          }
+        }
+      // It's a normal value
+      } else {
+        x = { type: 'normal', value: a.join('') }
+      }
+    }
+    if (i === old) {
+      throw new Error('invalid CSS value ' + s)
+    }
+    return { value: x, index: i }
+  }
+
+  function parseCSS(k, s) {
+    s = '' + s // convert to string
+    var i = 0
+      , a = []
+      , x
+    while (s[i]) {
+      x = parseCSS1(k, s, 0)
+      a.push(x.value)
+      i = x.index
+    }
+    if (a.length === 1) {
+      return a[0]
+    } else {
+      return { type: 'multi', args: a }
     }
   }
 
-  // support for relative movement via '+=n' or '-=n'
-  function by(val, start, m, r, i) {
-    return (m = relVal.exec(val)) ?
-      (i = parseFloat(m[2])) && (start + (m[1] == '+' ? 1 : -1) * i) :
-      parseFloat(val)
+  /**
+    * makeTweener:
+    * @param x: parsed CSS object which represents the start of the animation
+    * @param y: parsed CSS object which represents the end of the animation
+    * @returns a function which when given a position returns the interpolated style
+    */
+  function makeTweener(x, y) {
+    switch (x.type) {
+    case 'number':
+      var diff = y.value - x.value
+      return function (pos) {
+        // round so we don't get crazy long floats
+        return Math.round((x.value + (diff * pos)) * thousand) / thousand + x.unit
+      }
+    case 'multi':
+      x.args = x.args.map(function (x, i) {
+        return makeTweener(x, y.args[i])
+      })
+      return function (pos) {
+        return x.args.map(function (f) { return f(pos) }).join(' ')
+      }
+    case 'function':
+      // Normalize to rgba
+      if (x.value === 'rgb') {
+        x.args.push({ type: 'number', value: 1, unit: '' })
+        x.value = 'rgba'
+      }
+      if (y.value === 'rgb') {
+        y.args.push({ type: 'number', value: 1, unit: '' })
+        x.value = 'rgba'
+      }
+      x.args = x.args.map(function (x, i) {
+        return makeTweener(x, y.args[i])
+      })
+      if (x.value === 'rgba') {
+        return function (pos) {
+          return x.value + '(' + Math.round(x.args[0](pos)) + ', ' +
+                                 Math.round(x.args[1](pos)) + ', ' +
+                                 Math.round(x.args[2](pos)) + ', ' +
+                                 x.args[3](pos) + ')'
+        }
+      } else {
+        return function (pos) {
+          return x.value + '(' + x.args.map(function (f) { return f(pos) }).join(', ') + ')'
+        }
+      }
+      break // TODO: useless break but JSHint complained about it
+    case 'normal':
+      return function (pos) {
+        return pos > 0.5 ? y.value : x.value
+      }
+    }
+  }
+
+  function getRelative(x, y) {
+    switch (y.type) {
+    case 'number':
+      // Relative values with += and -=
+      if (y.relative === '+') {
+        y.value = x.value + y.value
+      } else if (y.relative === '-') {
+        y.value = x.value - y.value
+      }
+      return y.value + y.unit
+    case 'multi':
+      y.args = y.args.map(function (y, i) {
+        return getRelative(x.args[i], y)
+      })
+      return y.args.join(' ')
+    // TODO Should this normalize to rgba?
+    case 'function':
+      y.args = y.args.map(function (y, i) {
+        return getRelative(x.args[i], y)
+      })
+      return y.value + '(' + y.args.join(', ') + ')'
+    case 'normal':
+      return y.value
+    }
+  }
+
+  function opacity(f) {
+    return function (pos) {
+                                       // TODO: this coerces from a string to a number
+      return 'alpha(opacity=' + f(pos) * 100 + ')'
+    }
+  }
+
+  function getOption(v, el) {
+    return fun(v) ? v(el) : v
   }
 
   /**
@@ -285,102 +389,104 @@
     *     - this may also be a function that receives element to be animated. it must return a value
     */
   function morpheus(elements, options) {
-    var els = elements ? (els = isFinite(elements.length) ? elements : [elements]) : [], i
-      , complete = options.complete
+    var complete = options.complete
       , duration = options.duration
-      , ease = options.easing
-      , points = options.bezier
-      , begin = []
-      , end = []
-      , units = []
-      , bez = []
-      , originalLeft
-      , originalTop
-
-    if (points) {
-      // remember the original values for top|left
-      originalLeft = options.left;
-      originalTop = options.top;
-      delete options.right;
-      delete options.bottom;
-      delete options.left;
-      delete options.top;
-    }
+      , ease     = options.easing
+      , points   = options.bezier
+      , a        = []
+      , els      = (elements
+                     ? (els = isFinite(elements.length)
+                         ? elements
+                         : [elements])
+                     : [])
+      , old
+      , begin
+      , end
+      , camel
+      , bez
+      , i
+      , k
 
     for (i = els.length; i--;) {
-
-      // record beginning and end states to calculate positions
-      begin[i] = {}
-      end[i] = {}
-      units[i] = {}
-
-      // are we 'moving'?
       if (points) {
-
         var left = getStyle(els[i], 'left')
-          , top = getStyle(els[i], 'top')
-          , xy = [by(fun(originalLeft) ? originalLeft(els[i]) : originalLeft || 0, parseFloat(left)),
-                  by(fun(originalTop) ? originalTop(els[i]) : originalTop || 0, parseFloat(top))]
+          , top  = getStyle(els[i], 'top')
+          , xy   = []
 
-        bez[i] = fun(points) ? points(els[i], xy) : points
-        bez[i].push(xy)
-        bez[i].unshift([
+        // TODO: pretty ridiculous; split it into multiple statements, or simplify it?
+        xy.push(parseFloat(getRelative(parseCSS('left', left),
+                                       parseCSS('left', options.left
+                                                         ? getOption(options.left, els[i])
+                                                         : 0))))
+        xy.push(parseFloat(getRelative(parseCSS('top', top),
+                                       parseCSS('top', options.top
+                                                         ? getOption(options.top, els[i])
+                                                         : 0))))
+
+        bez = fun(points) ? points(els[i], xy) : points
+        bez.push(xy)
+        bez.unshift([
           parseInt(left, 10),
           parseInt(top, 10)
         ])
+        a.push({ element: els[i], bezier: bez })
       }
 
-      for (var k in options) {
+      for (k in options) {
         switch (k) {
         case 'complete':
         case 'duration':
         case 'easing':
         case 'bezier':
-          continue;
-          break
-        }
-        var v = getStyle(els[i], k), unit
-          , tmp = fun(options[k]) ? options[k](els[i]) : options[k]
-        if (typeof tmp == 'string' &&
-            rgbOhex.test(tmp) &&
-            !rgbOhex.test(v)) {
-          delete options[k]; // remove key :(
-          continue; // cannot animate colors like 'orange' or 'transparent'
-                    // only #xxx, #xxxxxx, rgb(n,n,n)
+          continue
         }
 
-        begin[i][k] = k == 'transform' ? parseTransform(v) :
-          typeof tmp == 'string' && rgbOhex.test(tmp) ?
-            toHex(v).slice(1) :
-            parseFloat(v)
-        end[i][k] = k == 'transform' ? parseTransform(tmp, begin[i][k]) :
-          typeof tmp == 'string' && tmp.charAt(0) == '#' ?
-            toHex(tmp).slice(1) :
-            by(tmp, parseFloat(v));
-        // record original unit
-        (typeof tmp == 'string') && (unit = tmp.match(numUnit)) && (units[i][k] = unit[1])
+        if (points) {
+          switch (k) {
+          case 'left':
+          case 'top':
+          case 'bottom':
+          case 'right':
+            continue
+          }
+        }
+
+        if (k === 'transform') {
+          camel = transform
+        } else {
+          camel = camelize(k)
+        }
+
+        old   = els[i].style[camel]
+        begin = parseCSS(camel, getStyle(els[i], camel))
+        // TODO: inefficient and very hacky, but I don't see a better way to make relative units work
+        els[i].style[camel] = getRelative(begin, parseCSS(camel, getOption(options[k], els[i])))
+        end   = parseCSS(camel, getStyle(els[i], camel))
+        els[i].style[camel] = old
+
+        if (camel === 'opacity' && !opasity) {
+          a.push({ element: els[i]
+                 , style:   'filter'
+                 , value:   opacity(makeTweener(begin, end)) })
+        } else {
+          a.push({ element: els[i]
+                 , style:   camel
+                 , value:   makeTweener(begin, end) })
+        }
       }
     }
     // ONE TWEEN TO RULE THEM ALL
-    return tween.apply(els, [duration, function (pos, v, xy) {
-      // normally not a fan of optimizing for() loops, but we want something
-      // fast for animating
-      for (i = els.length; i--;) {
-        if (points) {
-          xy = bezier(bez[i], pos)
-          els[i].style.left = xy[0] + 'px'
-          els[i].style.top = xy[1] + 'px'
-        }
-        for (var k in options) {
-          v = getTweenVal(pos, units, begin, end, k, i)
-          k == 'transform' ?
-            els[i].style[transform] = formatTransform(v) :
-            k == 'opacity' && !opasity ?
-              (els[i].style.filter = 'alpha(opacity=' + (v * 100) + ')') :
-              (els[i].style[camelize(k)] = v)
+    return tween.call(els, duration, function (pos) {
+      for (i = a.length; i--;) {
+        if (a[i].bezier) {
+          var xy = bezier(a[i].bezier, pos)
+          a[i].element.style.left = xy[0] + 'px'
+          a[i].element.style.top  = xy[1] + 'px'
+        } else {
+          a[i].element.style[a[i].style] = a[i].value(pos)
         }
       }
-    }, complete, ease])
+    }, complete, ease)
   }
 
   // expose useful methods
@@ -388,8 +494,6 @@
   morpheus.getStyle = getStyle
   morpheus.bezier = bezier
   morpheus.transform = transform
-  morpheus.parseTransform = parseTransform
-  morpheus.formatTransform = formatTransform
   morpheus.easings = {}
 
   return morpheus

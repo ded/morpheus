@@ -336,8 +336,7 @@
         case 'duration':
         case 'easing':
         case 'bezier':
-          continue;
-          break
+          continue
         }
         var v = getStyle(els[i], k), unit
           , tmp = fun(options[k]) ? options[k](els[i]) : options[k]

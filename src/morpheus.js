@@ -13,7 +13,7 @@
     , thousand = 1000
     , rgbOhex = /^rgb\(|#/
     , relVal = /^([+\-])=([\d\.]+)/
-    , numUnit = /^(?:[\+\-]=)?\d+(?:\.\d+)?(%|in|cm|mm|em|ex|pt|pc|px)$/
+    , numUnit = /^(?:[\+\-]=?)?\d+(?:\.\d+)?(%|in|cm|mm|em|ex|pt|pc|px)$/
     , rotate = /rotate\(((?:[+\-]=)?([\-\d\.]+))deg\)/
     , scale = /scale\(((?:[+\-]=)?([\d\.]+))\)/
     , skew = /skew\(((?:[+\-]=)?([\-\d\.]+))deg, ?((?:[+\-]=)?([\-\d\.]+))deg\)/

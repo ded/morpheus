@@ -85,6 +85,16 @@
           })
         })
 
+        test('should accept negative value with unit', 1, function () {
+          morpheus(el, {
+            left: '-10%',
+            duration: 10,
+            complete: function () {
+              ok(el.style.left == '-10%', 'el.style.left == "-10%"')
+            }
+          })
+        })
+
         test('should accept positive += offset', 2, function () {
           morpheus(el, {
             top: '+=10px',

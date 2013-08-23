@@ -45,9 +45,10 @@
   var getStyle = doc.defaultView && doc.defaultView.getComputedStyle ?
     function (el, property) {
       property = property == 'transform' ? transform : property
+      property = camelize(property)
       var value = null
         , computed = doc.defaultView.getComputedStyle(el, '')
-      computed && (value = computed[camelize(property)])
+      computed && (value = computed[property])
       return el.style[property] || value
     } : html.currentStyle ?
 

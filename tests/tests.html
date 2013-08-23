@@ -213,6 +213,19 @@
         transformTest(test, ok, 'should accept relative translate','translate(100px,100px)','translate(+=30px,-=106px)',['v.translatex == 130','v.translatey == -6'])
       })
 
+      sink('getStyle', function (test, ok) {
+        test('camelize', function (done) {
+          try {
+            var el = document.getElementById('test')
+            morpheus.getStyle(el, 'font-size')
+            ok(true, 'property was properly camelized')
+          } catch (ex) {
+            ok(false, 'should not error')
+          }
+          done()
+        })
+      })
+
       sink('Out', function (test, ok) {
         var el = document.getElementById('test')
         test('stop() method should stop an animation and run callback', 1, function () {

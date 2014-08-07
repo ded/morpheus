@@ -400,6 +400,7 @@
   morpheus.transform = transform
   morpheus.parseTransform = parseTransform
   morpheus.formatTransform = formatTransform
+  morpheus.animationFrame = frame
   morpheus.easings = {}
 
   return morpheus

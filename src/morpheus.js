@@ -1,8 +1,8 @@
-!function (name, definition) {
-  if (typeof define == 'function') define(definition)
-  else if (typeof module != 'undefined') module.exports = definition()
-  else this[name] = definition()
-}('morpheus', function () {
+(function (name, context, definition) {
+  if (typeof module != 'undefined' && module.exports) module.exports = definition()
+  else if (typeof define == 'function' && define.amd) define(definition)
+  else context[name] = definition()
+})('morpheus', this, function () {
 
   var doc = document
     , win = window

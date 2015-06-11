@@ -7,7 +7,7 @@
   if (typeof module != 'undefined' && module.exports) module.exports = definition()
   else if (typeof define == 'function' && define.amd) define(definition)
   else context[name] = definition()
-})('morpheus', function () {
+})('morpheus', this, function () {
 
   var doc = document
     , win = window
